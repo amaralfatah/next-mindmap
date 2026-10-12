@@ -63,7 +63,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
             size="icon"
             className={cn(
               "size-9 text-foreground/80 hover:text-foreground [&_svg]:size-[18px]",
-              (open || hasStyle) && "bg-blue-100 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/70 dark:text-blue-400",
+              (open || hasStyle) && "bg-primary/15 text-primary hover:bg-primary/20",
               className,
             )}
             aria-label={t.editor.style}
@@ -73,7 +73,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
       >
         <PaintRoller />
       </PopoverTrigger>
-      <PopoverContent side={side} align={align} className="w-[280px] p-3 shadow-xl">
+      <PopoverContent side={side} align={align} className="w-[280px] p-3 shadow-xl border border-border/70 bg-popover/90 backdrop-blur-xl">
         <input
           ref={colorInputRef}
           type="color"
@@ -94,7 +94,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
             )}
           >
             {t.editor.shape}
-            {tab === "shape" && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-blue-500" />}
+            {tab === "shape" && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />}
           </button>
           <button
             type="button"
@@ -105,7 +105,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
             )}
           >
             {t.editor.border}
-            {tab === "border" && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-blue-500" />}
+            {tab === "border" && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />}
           </button>
         </div>
 
@@ -129,7 +129,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
               className={cn(
                 "grid size-9 place-items-center rounded-xl transition-all duration-120 cursor-pointer active:scale-95",
                 isCustom
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 ring-1 ring-blue-300 dark:ring-blue-700/60"
+                  ? "bg-primary/15 text-primary ring-1.5 ring-primary/40"
                   : "hover:bg-muted/70",
               )}
             >
@@ -155,7 +155,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
               className={cn(
                 "grid size-9 place-items-center rounded-xl transition-all duration-120 cursor-pointer active:scale-95",
                 isNone
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 ring-1 ring-blue-300 dark:ring-blue-700/60"
+                  ? "bg-primary/15 text-primary ring-1.5 ring-primary/40"
                   : "hover:bg-muted/70",
               )}
             >
@@ -188,7 +188,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
                   className={cn(
                     "grid size-9 place-items-center rounded-xl transition-all duration-120 cursor-pointer active:scale-95",
                     isSelected
-                      ? "bg-blue-100 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 ring-1 ring-blue-300 dark:ring-blue-700/60"
+                      ? "bg-primary/15 text-primary ring-1.5 ring-primary/40"
                       : "hover:bg-muted/70",
                   )}
                 >

@@ -93,6 +93,25 @@ function timeAgo(ms: number, now: number): string {
 type Dialog =
   { kind: "rename" | "delete"; map: MindMap } | { kind: "paste" } | null;
 
+function MapCardSkeleton({ index }: { index: number }) {
+  return (
+    <li
+      className="rise group relative"
+      style={{ animationDelay: `${Math.min(index, 6) * 45}ms` }}
+    >
+      <div className="sticker overflow-hidden rounded-3xl border-2 bg-card">
+        <div className="dot-paper aspect-[16/9] border-b bg-paper-2/70 p-3 flex items-center justify-center">
+          <div className="size-8 rounded-full bg-muted/70 animate-pulse" />
+        </div>
+        <div className="p-3 pr-12 space-y-2">
+          <div className="h-5 w-3/4 rounded-md bg-muted/80 animate-pulse" />
+          <div className="h-3.5 w-1/2 rounded-md bg-muted/50 animate-pulse" />
+        </div>
+      </div>
+    </li>
+  );
+}
+
 function MapCard({
   map,
   now,
@@ -408,10 +427,17 @@ export function Home() {
         )}
 
         {maps === null ? (
-          <div className="flex min-h-[50dvh] flex-col items-center justify-center gap-3" role="status" aria-busy>
-            <span className="inline-block size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">{t.home.loading}</p>
-          </div>
+          <section aria-label={t.home.loading} className="pt-8" role="status" aria-busy="true">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="h-9 w-40 rounded-lg bg-muted/70 animate-pulse" />
+              <div className="ml-auto h-9 w-48 rounded-lg bg-muted/50 animate-pulse max-sm:hidden" />
+            </div>
+            <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <MapCardSkeleton key={i} index={i} />
+              ))}
+            </ul>
+          </section>
         ) : !hasMaps ? (
           <section className="my-auto grid items-center gap-10 py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
             <div className="rise">

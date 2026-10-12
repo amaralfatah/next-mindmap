@@ -102,7 +102,7 @@ export function NotesPanel() {
   return (
     <aside
       aria-label={t.editor.notesTitle}
-      className="rise absolute z-30 flex flex-col border bg-background shadow-lg max-md:inset-x-0 max-md:bottom-0 max-md:h-[45dvh] max-md:rounded-t-2xl md:top-16 md:right-3 md:bottom-20 md:w-80 md:rounded-2xl"
+      className="rise absolute z-30 flex flex-col border border-border/60 bg-background/90 shadow-xl shadow-black/[0.06] backdrop-blur-xl max-md:inset-x-0 max-md:bottom-0 max-md:h-[48dvh] max-md:rounded-t-3xl md:top-16 md:right-3 md:bottom-20 md:w-80 md:rounded-3xl dark:shadow-black/30"
     >
       <div className="flex items-start gap-2 border-b p-3 pb-2">
         <div className="min-w-0 flex-1">

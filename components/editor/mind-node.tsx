@@ -137,7 +137,7 @@ function AddButton({ label, onClick, className }: { label: string; onClick: () =
       aria-label={label}
       title={label}
       className={cn(
-        "nodrag nopan pointer-events-auto grid shrink-0 cursor-pointer place-items-center rounded-full bg-blue-500 text-white shadow-md transition-all duration-120 ease-out hover:scale-110 hover:bg-blue-600 focus:outline-none active:scale-95",
+        "nodrag nopan pointer-events-auto grid shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/25 transition-all duration-120 ease-out hover:scale-110 hover:brightness-105 focus:outline-none active:scale-95",
         "size-5",
         className,
       )}
@@ -256,12 +256,12 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
         <>
           <span
             aria-hidden
-            className="pointer-events-none absolute -inset-1.5 z-10 rounded-[14px] border-2 border-blue-500"
+            className="pointer-events-none absolute -inset-1.5 z-10 rounded-[14px] border-2 border-ink shadow-[0_0_0_1px_var(--background)]"
           />
           {!editing && (
             <span
               aria-hidden
-              className="pointer-events-none absolute -right-[11px] -bottom-[11px] z-10 size-2.5 rounded-full border-2 border-blue-500 bg-white"
+              className="pointer-events-none absolute -right-[11px] -bottom-[11px] z-10 size-2.5 rounded-full border-2 border-ink bg-background shadow-xs"
             />
           )}
         </>

@@ -78,7 +78,7 @@ export function TopBar() {
 
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start gap-2 pb-2 pt-[max(0.625rem,env(safe-area-inset-top))] pl-[max(0.625rem,env(safe-area-inset-left))] pr-[max(0.625rem,env(safe-area-inset-right))]">
-      <div className="pointer-events-auto flex min-w-0 items-center gap-1 rounded-xl border bg-background/95 p-1 pr-2 shadow-sm">
+      <div className="pointer-events-auto flex min-w-0 items-center gap-1 rounded-2xl border border-border/60 bg-background/80 p-1 pr-2 shadow-md shadow-black/[0.03] backdrop-blur-xl dark:shadow-black/20">
         <Tooltip>
           <TooltipTrigger
             render={
@@ -109,7 +109,7 @@ export function TopBar() {
 
       {searchOpen && <SearchBar />}
 
-      <div className="pointer-events-auto flex items-center gap-0.5 rounded-xl border bg-background/95 p-1 shadow-sm">
+      <div className="pointer-events-auto flex items-center gap-0.5 rounded-2xl border border-border/60 bg-background/80 p-1 shadow-md shadow-black/[0.03] backdrop-blur-xl dark:shadow-black/20">
         {!searchOpen && (
           <IconButton label={t.editor.search} keys={["Ctrl", "F"]} onClick={openSearch}>
             <SearchIcon />

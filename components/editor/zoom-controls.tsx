@@ -24,7 +24,7 @@ export function ZoomControls() {
   };
 
   return (
-    <div className="pointer-events-auto absolute right-3 bottom-4 z-20 hidden flex-col items-center gap-0.5 rounded-xl border bg-background/95 p-1 shadow-sm md:flex">
+    <div className="pointer-events-auto absolute right-3 bottom-4 z-20 hidden flex-col items-center gap-0.5 rounded-2xl border border-border/60 bg-background/80 p-1 shadow-md shadow-black/[0.03] backdrop-blur-xl md:flex dark:shadow-black/20">
       <IconButton label={t.editor.zoomIn} keys={["Ctrl", "+"]} side="left" size="icon-sm" onClick={zoomIn}>
         <PlusIcon />
       </IconButton>

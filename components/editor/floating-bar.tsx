@@ -189,7 +189,7 @@ export function FloatingBar({ node, visible }: { node: MindNode; visible: boolea
       <div
         role="toolbar"
         aria-label={t.editor.nodeActions}
-        className="nodrag nopan flex items-center rounded-2xl border bg-background p-1 shadow-lg"
+        className="nodrag nopan max-sm:hidden flex items-center rounded-2xl border border-border/60 bg-background/80 p-1 shadow-lg shadow-black/[0.04] backdrop-blur-xl dark:shadow-black/20"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >

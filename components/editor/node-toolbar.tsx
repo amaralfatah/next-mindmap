@@ -42,7 +42,7 @@ function ColorPicker({ nodeId }: { nodeId: string }) {
         <TooltipTrigger
           render={
             <PopoverTrigger
-              render={<Button variant="ghost" size="icon" aria-label={t.editor.color} disabled={node.parentId === null} className="max-sm:size-10" />}
+              render={<Button variant="ghost" size="icon" aria-label={t.editor.color} disabled={node.parentId === null} className="max-sm:size-11 max-sm:min-w-11" />}
             />
           }
         >
@@ -112,7 +112,7 @@ export function NodeToolbar() {
       <div
         role="toolbar"
         aria-label={t.editor.nodeActions}
-        className="pointer-events-auto flex max-w-full items-center gap-0.5 overflow-x-auto rounded-2xl border bg-background/95 p-1 shadow-md [scrollbar-width:none]"
+        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-border/60 bg-background/80 p-1.5 shadow-lg shadow-black/[0.04] backdrop-blur-xl [scrollbar-width:none] dark:shadow-black/20"
       >
         <IconButton
           label={t.editor.addChild}
@@ -120,7 +120,7 @@ export function NodeToolbar() {
           keys={["Tab"]}
           side="top"
           onClick={() => s.addChild()}
-          className="h-10 px-3 font-semibold text-ink sm:h-9"
+          className="h-11 px-3.5 font-semibold text-ink sm:h-9 sm:px-3"
         >
           <CornerDownRightIcon />
         </IconButton>
@@ -131,18 +131,18 @@ export function NodeToolbar() {
           side="top"
           onClick={() => s.addSibling()}
           disabled={isRoot}
-          className="h-10 px-3 font-semibold text-ink sm:h-9"
+          className="h-11 px-3.5 font-semibold text-ink sm:h-9 sm:px-3"
         >
           <ListPlusIcon />
         </IconButton>
         <Divider />
-        <IconButton label={t.editor.edit} keys={["F2"]} side="top" onClick={() => s.startEdit()} className="max-sm:size-10">
+        <IconButton label={t.editor.edit} keys={["F2"]} side="top" onClick={() => s.startEdit()} className="max-sm:size-11 max-sm:min-w-11">
           <PencilIcon />
         </IconButton>
         <Divider />
         <ColorPicker nodeId={selectedId} />
-        <NodeStylePicker node={node} side="top" align="center" className="max-sm:size-10" />
-        <EmoticonPicker node={node} side="top" align="center" className="max-sm:size-10" />
+        <NodeStylePicker node={node} side="top" align="center" className="max-sm:size-11 max-sm:min-w-11" />
+        <EmoticonPicker node={node} side="top" align="center" className="max-sm:size-11 max-sm:min-w-11" />
         <IconButton
           label={t.editor.bold}
           keys={["Ctrl", "B"]}
@@ -168,7 +168,7 @@ export function NodeToolbar() {
           keys={["Ctrl", "."]}
           side="top"
           aria-pressed={notesOpen}
-          className="aria-pressed:bg-accent max-sm:size-10"
+          className="aria-pressed:bg-accent max-sm:size-11 max-sm:min-w-11"
           onClick={() => s.setNotesOpen(!notesOpen)}
         >
           <StickyNoteIcon />
@@ -179,7 +179,7 @@ export function NodeToolbar() {
           side="top"
           onClick={() => s.toggleCollapse()}
           disabled={isRoot || !hasChildren}
-          className="max-sm:size-10"
+          className="max-sm:size-11 max-sm:min-w-11"
         >
           {node.collapsed ? <ChevronsUpDownIcon /> : <ChevronsDownUpIcon />}
         </IconButton>
@@ -190,7 +190,7 @@ export function NodeToolbar() {
           side="top"
           onClick={removeSelected}
           disabled={isRoot}
-          className="hover:bg-destructive/10 hover:text-destructive max-sm:size-10"
+          className="hover:bg-destructive/10 hover:text-destructive max-sm:size-11 max-sm:min-w-11"
         >
           <Trash2Icon />
         </IconButton>
