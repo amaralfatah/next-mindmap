@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const STORAGE_KEY = "sararia_recent_emoticons";
 const MAX_RECENT = 12;
 
-type EmoticonCategory = "popular" | "smileys" | "objects" | "nature" | "symbols" | "kaomoji";
+type EmoticonCategory = "popular" | "wealth" | "smileys" | "objects" | "nature" | "symbols" | "kaomoji";
 
 type EmoticonItem = {
   char: string;
@@ -24,12 +24,16 @@ type EmoticonItem = {
 const EMOTICON_DATA: Record<EmoticonCategory, EmoticonItem[]> = {
   popular: [
     { char: "⭐", name: "Star", keywords: "star bintang favorite penting gold yellow" },
+    { char: "💰", name: "Money bag", keywords: "money bag kantong uang duit cuan kaya kekayaan harta modal koin dana finance wealth" },
     { char: "🔥", name: "Fire", keywords: "fire api hot semangat trending burning" },
     { char: "✅", name: "Checkmark", keywords: "check centang selesai done ok checklist yes benar task" },
+    { char: "💵", name: "Dollar banknote", keywords: "dollar uang kertas cash tunai duit lembaran bayar belanja gaji income" },
     { char: "💡", name: "Light bulb", keywords: "idea lampu ide thought creative terang inspirasi" },
     { char: "🚀", name: "Rocket", keywords: "rocket roket launch cepat launch terbang go progress" },
+    { char: "💎", name: "Gem stone", keywords: "gem diamond berlian permata mewah luxury kaya raya mahal perhiasan kilau" },
     { char: "🎯", name: "Bullseye", keywords: "target goal fokus sasaran aim objective" },
     { char: "📌", name: "Pushpin", keywords: "pin pasang catatan note notice penting mark" },
+    { char: "🤑", name: "Money mouth face", keywords: "money mouth face cuan kaya rezeki untung profit tamak senyum uang mata duitan" },
     { char: "⚠️", name: "Warning", keywords: "warning peringatan hati-hati danger awas alert" },
     { char: "❤️", name: "Red heart", keywords: "heart love cinta suka hati merah red love" },
     { char: "💬", name: "Speech bubble", keywords: "chat pesan comment bicara talk diskusi chat" },
@@ -39,6 +43,36 @@ const EMOTICON_DATA: Record<EmoticonCategory, EmoticonItem[]> = {
     { char: "⚡", name: "High voltage", keywords: "lightning petir kilat cepat flash energy listrik" },
     { char: "✨", name: "Sparkles", keywords: "sparkles kilau bintang bersih clean shiny magic" },
     { char: "🌸", name: "Cherry blossom", keywords: "flower bunga sakura pink musim semi cantik" },
+  ],
+  wealth: [
+    { char: "💰", name: "Money bag", keywords: "money bag kantong uang duit cuan kaya kekayaan harta modal koin dana finance wealth" },
+    { char: "💵", name: "Dollar banknote", keywords: "dollar uang kertas cash tunai duit lembaran bayar belanja gaji income" },
+    { char: "💸", name: "Money with wings", keywords: "money wings uang terbang cuan boros belanja transfer pengeluaran shopping" },
+    { char: "🪙", name: "Coin", keywords: "coin koin uang koin emas receh perak crypto token keping kas" },
+    { char: "💎", name: "Gem stone", keywords: "gem diamond berlian permata mewah luxury kaya raya mahal perhiasan kilau" },
+    { char: "🤑", name: "Money mouth face", keywords: "money mouth face cuan kaya rezeki untung profit tamak senyum uang mata duitan" },
+    { char: "💳", name: "Credit card", keywords: "credit card kartu kredit debit atm bayar saldo belanja gesek bank" },
+    { char: "🏦", name: "Bank", keywords: "bank gedung simpan uang tabungan investasi finance kredit pinjaman bursa" },
+    { char: "🏧", name: "ATM", keywords: "atm tarik tunai setor tunai mesin kartu debit uang kas" },
+    { char: "📈", name: "Chart increasing", keywords: "chart up naik untung profit cuan investasi saham bullish reksadana berkembang" },
+    { char: "💹", name: "Chart with yen", keywords: "chart market bursa pasar modal saham forex trading investasi untung" },
+    { char: "👑", name: "Crown", keywords: "crown mahkota raja ratu sultan kaya raya kekuasaan tahta mewah" },
+    { char: "💍", name: "Ring", keywords: "ring cincin berlian emas perhiasan lamaran mewah luxury" },
+    { char: "🏆", name: "Trophy", keywords: "trophy piala emas juara menang sukses reward hadiah emas" },
+    { char: "🥇", name: "Gold medal", keywords: "gold medal medali emas nomor 1 juara prestasi aset" },
+    { char: "💶", name: "Euro banknote", keywords: "euro uang kertas mata uang eropa devisa valas" },
+    { char: "💷", name: "Pound banknote", keywords: "pound uang kertas poundsterling inggris devisa valas" },
+    { char: "💴", name: "Yen banknote", keywords: "yen uang kertas jepang devisa valas mata uang asia" },
+    { char: "🧾", name: "Receipt", keywords: "receipt struk tagihan nota kasbon invoice pembayaran akuntansi pajak" },
+    { char: "🛒", name: "Shopping cart", keywords: "shopping cart troli belanja beli aset borong transaksi checkout" },
+    { char: "🏷️", name: "Price tag", keywords: "price tag label harga diskon sale promo nilai valuasi" },
+    { char: "⚖️", name: "Balance scale", keywords: "scales timbangan neraca keuangan seimbang balance aset liabilitas" },
+    { char: "🏰", name: "Castle", keywords: "castle istana kastil properti mewah real estate mansion tempat tinggal mewah" },
+    { char: "🏡", name: "House with garden", keywords: "house rumah mewah aset properti tanah tempat tinggal investasi kavling" },
+    { char: "🏎️", name: "Racing car", keywords: "car mobil sport mewah lamborghini ferrari supercar sultan kekayaan gaya hidup" },
+    { char: "🛥️", name: "Motor boat", keywords: "yacht kapal pesiar kapal mewah liburan sultan gaya hidup luxury laut" },
+    { char: "🍾", name: "Bottle with popping cork", keywords: "champagne sampanye pesta kaya selebrasi cuan sukses berhasil mewah" },
+    { char: "💼", name: "Briefcase", keywords: "briefcase koper tas kerja bisnis investor manajer portofolio aset" },
   ],
   smileys: [
     { char: "😀", name: "Grinning face", keywords: "grinning smile senang gembira wajah face happy" },
@@ -200,11 +234,16 @@ const EMOTICON_DATA: Record<EmoticonCategory, EmoticonItem[]> = {
     { char: "(•_•)", name: "Serious", keywords: "serious datar serius kacamata" },
     { char: "(>_<)", name: "Frustrated", keywords: "frustrated aduh pusing kesal sebal" },
     { char: "\\(^o^)/", name: "Hooray", keywords: "hooray hore hore sukses hore" },
+    { char: "[$_ $]", name: "Money eyes", keywords: "money eyes cuan uang kaya dollar kaomoji" },
+    { char: "[̲̅$̲̅(̲̅5̲̅)̲̅$̲̅]", name: "Cash note", keywords: "cash note uang dollar lembaran cuan kaomoji" },
+    { char: "(•_•)💰", name: "Holding cash", keywords: "holding cash pegang uang cuan kaya kaomoji" },
+    { char: "💸\\(^o^)/", name: "Cuan celebration", keywords: "cuan hore pesta uang kaya kaomoji" },
   ],
 };
 
 const CATEGORIES: { id: EmoticonCategory; label: string; icon: string }[] = [
   { id: "popular", label: "Populer", icon: "⭐" },
+  { id: "wealth", label: "Uang", icon: "💰" },
   { id: "smileys", label: "Wajah", icon: "😀" },
   { id: "objects", label: "Kerja", icon: "💼" },
   { id: "nature", label: "Alam", icon: "🌸" },
@@ -417,14 +456,14 @@ export function EmoticonPicker({
 
         {/* Category Tabs (shown when not searching) */}
         {!query && (
-          <div className="mt-2 flex items-center justify-between border-b border-border/70 pb-1">
+          <div className="mt-2 flex items-center justify-between gap-0.5 overflow-x-auto border-b border-border/70 pb-1 [scrollbar-width:none]">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
                 className={cn(
-                  "relative flex flex-col items-center gap-0.5 px-1.5 py-1 text-[11px] font-medium transition-colors cursor-pointer",
+                  "relative flex shrink-0 flex-col items-center gap-0.5 px-1.5 py-1 text-[11px] font-medium transition-colors cursor-pointer",
                   activeCategory === cat.id ? "text-ink font-semibold" : "text-muted-foreground hover:text-foreground",
                 )}
                 title={cat.label}

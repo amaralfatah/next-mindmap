@@ -120,6 +120,7 @@ export const en = {
     emoticonSearch: "Search emoticons…",
     emoticonRecent: "Recent",
     emoticonPopular: "Popular",
+    emoticonWealth: "Wealth",
     emoticonSmileys: "Smileys",
     emoticonObjects: "Objects",
     emoticonNature: "Nature",
