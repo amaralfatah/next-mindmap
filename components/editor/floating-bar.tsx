@@ -23,6 +23,7 @@ import { t } from "@/lib/i18n";
 import type { MindNode } from "@/lib/model";
 import { cn } from "@/lib/utils";
 import { removeSelected } from "./actions";
+import { EmoticonPicker } from "./emoticon-picker";
 import { NodeStylePicker } from "./node-style-picker";
 
 const btn = "size-9 text-foreground/80 hover:text-foreground [&_svg]:size-[18px]";
@@ -194,6 +195,7 @@ export function FloatingBar({ node, visible }: { node: MindNode; visible: boolea
       >
         <NodeStylePicker node={node} />
         <TextStyle node={node} />
+        <EmoticonPicker node={node} />
         <Divider />
         <LinkEditor node={node} />
         <Button variant="ghost" size="icon" className={btn} onClick={startConnect} aria-label={t.editor.connect} title={t.editor.connect}>

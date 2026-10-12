@@ -3,6 +3,7 @@
 import { XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "@/components/icon-button";
+import { EmoticonPicker } from "./emoticon-picker";
 import { useEditor, useMap } from "@/lib/editor/store";
 import { t } from "@/lib/i18n";
 
@@ -38,25 +39,55 @@ function NoteEditor({ nodeId, stored }: { nodeId: string; stored: string }) {
     return () => flushRef.current();
   }, []);
 
+  const handleInsertEmoticon = (char: string) => {
+    const el = area.current;
+    const current = buffer ?? stored;
+    if (el) {
+      const start = el.selectionStart ?? current.length;
+      const end = el.selectionEnd ?? current.length;
+      const next = current.slice(0, start) + char + current.slice(end);
+      pending.current = next;
+      setBuffer(next);
+      setTimeout(() => {
+        el.focus();
+        el.setSelectionRange(start + char.length, start + char.length);
+      }, 0);
+    } else {
+      const next = current ? `${current} ${char}` : char;
+      pending.current = next;
+      setBuffer(next);
+    }
+  };
+
   return (
-    <textarea
-      ref={area}
-      value={buffer ?? stored}
-      onChange={(e) => {
-        pending.current = e.target.value;
-        setBuffer(e.target.value);
-      }}
-      onBlur={flush}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.preventDefault();
-          useEditor.getState().setNotesOpen(false);
-        }
-      }}
-      placeholder={t.editor.notesPlaceholder}
-      aria-label={t.editor.notesTitle}
-      className="min-h-0 flex-1 resize-none bg-transparent p-3 text-base leading-relaxed outline-none placeholder:text-muted-foreground md:text-sm"
-    />
+    <div className="flex min-h-0 flex-1 flex-col">
+      <textarea
+        ref={area}
+        value={buffer ?? stored}
+        onChange={(e) => {
+          pending.current = e.target.value;
+          setBuffer(e.target.value);
+        }}
+        onBlur={flush}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            useEditor.getState().setNotesOpen(false);
+          }
+        }}
+        placeholder={t.editor.notesPlaceholder}
+        aria-label={t.editor.notesTitle}
+        className="min-h-0 flex-1 resize-none bg-transparent p-3 text-base leading-relaxed outline-none placeholder:text-muted-foreground md:text-sm"
+      />
+      <div className="flex items-center justify-between border-t border-border/40 px-2 py-1 bg-muted/20">
+        <EmoticonPicker
+          onSelect={handleInsertEmoticon}
+          side="top"
+          align="start"
+          className="size-7 text-muted-foreground hover:text-foreground [&_svg]:size-4"
+        />
+      </div>
+    </div>
   );
 }
 

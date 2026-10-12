@@ -87,4 +87,16 @@ describe("editor store", () => {
     expect(map().nodes[alpha].collapsed).toBeUndefined();
     expect(map().nodes[s().selectedId].text).toBe("alpha child");
   });
+
+  it("updates node text with emoticons and maintains history", () => {
+    s().addChild();
+    type("Plan");
+    const id = s().selectedId;
+    s().patch({ text: `${map().nodes[id].text} 🚀` }, id);
+    expect(map().nodes[id].text).toBe("Plan 🚀");
+    s().undo();
+    expect(map().nodes[id].text).toBe("Plan");
+    s().redo();
+    expect(map().nodes[id].text).toBe("Plan 🚀");
+  });
 });

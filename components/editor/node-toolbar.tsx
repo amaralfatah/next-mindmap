@@ -21,6 +21,7 @@ import { t } from "@/lib/i18n";
 import { branchColors, effectiveColor } from "@/lib/model";
 import { cn } from "@/lib/utils";
 import { removeSelected } from "./actions";
+import { EmoticonPicker } from "./emoticon-picker";
 import { NodeStylePicker } from "./node-style-picker";
 
 function Divider() {
@@ -141,6 +142,7 @@ export function NodeToolbar() {
         <Divider />
         <ColorPicker nodeId={selectedId} />
         <NodeStylePicker node={node} side="top" align="center" className="max-sm:size-10" />
+        <EmoticonPicker node={node} side="top" align="center" className="max-sm:size-10" />
         <IconButton
           label={t.editor.bold}
           keys={["Ctrl", "B"]}
