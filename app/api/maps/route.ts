@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const { data: session } = await auth.getSession();
     if (!session?.user) {
-      return NextResponse.json({ maps: [], broken: [], user: null });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const records = await db
@@ -72,6 +72,19 @@ export async function POST(request: Request) {
 
     const validated = migrateMap(body);
 
+    const [existing] = await db
+      .select({ userId: maps.userId })
+      .from(maps)
+      .where(eq(maps.id, validated.id))
+      .limit(1);
+
+    if (existing && existing.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: Map belongs to another user" },
+        { status: 403 }
+      );
+    }
+
     await db
       .insert(maps)
       .values({
@@ -95,6 +108,7 @@ export async function POST(request: Request) {
           updatedAt: validated.updatedAt,
           schemaVersion: validated.schemaVersion,
         },
+        where: eq(maps.userId, session.user.id),
       });
 
     return NextResponse.json({ success: true, map: validated });

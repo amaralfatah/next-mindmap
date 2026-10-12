@@ -3,6 +3,7 @@ import {
   addChild,
   addRelation,
   addSibling,
+  balanceSides,
   commit,
   createMap,
   deleteNode,
@@ -299,5 +300,30 @@ describe("relations, fill and link", () => {
     expect(clean.nodes[a].fill).toBeUndefined();
     expect(clean.nodes[a].border).toBeUndefined();
     expect(clean.relations).toHaveLength(1);
+  });
+});
+
+describe("balanceSides", () => {
+  it("balances main branches evenly between right and left sides", () => {
+    let map = createMap("Root");
+    const b1 = addChild(map, map.rootId, "B1", undefined, "right");
+    map = b1.map;
+    const b2 = addChild(map, map.rootId, "B2", undefined, "right");
+    map = b2.map;
+    const b3 = addChild(map, map.rootId, "B3", undefined, "right");
+    map = b3.map;
+    const b4 = addChild(map, map.rootId, "B4", undefined, "right");
+    map = b4.map;
+
+    // All currently on "right"
+    const rootChildren = map.nodes[map.rootId].childIds;
+    expect(rootChildren.every((id) => map.nodes[id].side === "right")).toBe(true);
+
+    const balanced = balanceSides(map);
+    const rightCount = rootChildren.filter((id) => balanced.nodes[id].side === "right").length;
+    const leftCount = rootChildren.filter((id) => balanced.nodes[id].side === "left").length;
+
+    expect(rightCount).toBe(2);
+    expect(leftCount).toBe(2);
   });
 });

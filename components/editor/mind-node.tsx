@@ -269,29 +269,31 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
 
       <FloatingBar node={node} visible={selected && !editing && !dimmed && !connecting} />
 
-      {/* Sibling below, Child beside: both the same distance from the selection outline, drawn above other nodes. */}
+      {/* Sibling below: only for nodes with parent */}
       {selected && !editing && !drop && !dimmed && !connecting && node.parentId !== null && (
         <div className="absolute left-1/2 top-full z-30 mt-3.5 flex -translate-x-1/2 items-center">
           <AddButton label={t.editor.addSibling} onClick={() => useEditor.getState().addSibling(node.id)} />
         </div>
       )}
 
-      {/* Child: beside the node, on the side its branch grows to. Only while that side is free. */}
-      {selected && !editing && !drop && !dimmed && !connecting && node.childIds.length === 0 && (
+      {/* Child beside: for leaf nodes and root node */}
+      {selected && !editing && !drop && !dimmed && !connecting && (node.childIds.length === 0 || node.parentId === null) && (
         <div
           className={cn(
-            "group/add nodrag nopan pointer-events-auto absolute top-1/2 z-30 flex -translate-y-1/2 items-center gap-2.5 select-none animate-in fade-in duration-120",
-            box.side === "left" ? "right-full mr-3.5 flex-row-reverse" : "left-full ml-3.5 flex-row",
+            "group/add nodrag nopan pointer-events-auto absolute top-1/2 z-30 flex -translate-y-1/2 items-center gap-2 select-none animate-in fade-in duration-120",
+            box.side === "left" ? "right-full mr-2 flex-row-reverse" : "left-full ml-2 flex-row",
           )}
         >
           <AddButton label={t.editor.addChild} onClick={() => useEditor.getState().addChild(node.id)} />
-          <div
-            aria-hidden
-            className={cn("pointer-events-none flex flex-col gap-1.5 text-[11px] text-muted-foreground", box.side === "left" && "items-end")}
-          >
-            <Hint keys="Tab" label={t.editor.toCreateChild} flip={box.side === "left"} />
-            {node.parentId !== null && <Hint keys="Enter" label={t.editor.toCreateSibling} flip={box.side === "left"} />}
-          </div>
+          {node.childIds.length === 0 && (
+            <div
+              aria-hidden
+              className={cn("pointer-events-none flex flex-col gap-1.5 text-[11px] text-muted-foreground", box.side === "left" && "items-end")}
+            >
+              <Hint keys="Tab" label={t.editor.toCreateChild} flip={box.side === "left"} />
+              {node.parentId !== null && <Hint keys="Enter" label={t.editor.toCreateSibling} flip={box.side === "left"} />}
+            </div>
+          )}
         </div>
       )}
 
@@ -328,20 +330,28 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
                 : t.editor.collapse
             }
             className={cn(
-              "nodrag nopan pointer-events-auto absolute z-20 grid size-3.5 place-items-center rounded-full border-[2px] bg-background transition-transform duration-120 ease-out active:scale-95 [@media(hover:hover)]:hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring before:absolute before:-inset-2 before:content-['']",
+              "nodrag nopan pointer-events-auto absolute z-20 place-items-center rounded-full transition-transform duration-120 ease-out active:scale-95 [@media(hover:hover)]:hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring before:absolute before:-inset-2 before:content-['']",
+              node.collapsed && box.hidden > 0
+                ? "flex h-4 min-w-4 px-1 text-[10px] font-bold font-mono text-white shadow-xs"
+                : "grid size-3.5 border-[2px] bg-background",
               box.side === "left"
                 ? "right-[calc(100%+14px)] translate-x-1/2"
                 : "left-[calc(100%+14px)] -translate-x-1/2",
               isBottomAnchored ? "top-full -translate-y-1/2" : "top-1/2 -translate-y-1/2",
             )}
-            style={{ borderColor: "var(--branch)" }}
+            style={{
+              borderColor: "var(--branch)",
+              background: node.collapsed && box.hidden > 0 ? "var(--branch)" : undefined,
+            }}
           >
-            {node.collapsed && (
+            {node.collapsed && box.hidden > 0 ? (
+              <span>+{box.hidden}</span>
+            ) : node.collapsed ? (
               <span
                 className="size-[5px] rounded-full"
                 style={{ background: "var(--branch)" }}
               />
-            )}
+            ) : null}
           </button>
         </>
       )}

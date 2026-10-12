@@ -4,6 +4,7 @@ import {
   ChevronLeftIcon,
   CloudAlertIcon,
   CloudCheckIcon,
+  Columns2Icon,
   DownloadIcon,
   FileCodeIcon,
   FileJsonIcon,
@@ -55,6 +56,7 @@ const exportItems: { format: ExportFormat; label: string; icon: typeof ImageIcon
   { format: "png", label: t.editor.exportPng, icon: ImageIcon },
   { format: "svg", label: t.editor.exportSvg, icon: FileCodeIcon },
   { format: "md", label: t.editor.exportMarkdown, icon: FileTextIcon },
+  { format: "opml", label: t.editor.exportOpml, icon: FileCodeIcon },
   { format: "json", label: t.editor.exportJson, icon: FileJsonIcon },
 ];
 
@@ -63,7 +65,7 @@ export function TopBar() {
   const canUndo = useEditor((s) => Boolean(s.history?.past.length));
   const canRedo = useEditor((s) => Boolean(s.history?.future.length));
   const searchOpen = useEditor((s) => s.search.open);
-  const { undo, redo, openSearch, setShortcutsOpen, startEdit } = useEditor.getState();
+  const { undo, redo, balanceLayout, openSearch, setShortcutsOpen, startEdit } = useEditor.getState();
 
   async function runExport(format: ExportFormat) {
     if (!map) return;
@@ -118,6 +120,9 @@ export function TopBar() {
         </IconButton>
         <IconButton label={t.editor.redo} keys={["Ctrl", "Shift", "Z"]} onClick={redo} disabled={!canRedo} className="max-sm:hidden">
           <Redo2Icon />
+        </IconButton>
+        <IconButton label={t.editor.balanceLayout} onClick={balanceLayout} className="max-sm:hidden">
+          <Columns2Icon />
         </IconButton>
         <DropdownMenu>
           <Tooltip>

@@ -5,6 +5,7 @@ import {
   addChild,
   addRelation,
   addSibling,
+  balanceSides,
   commit,
   deleteNode,
   initHistory,
@@ -78,6 +79,7 @@ type EditorState = {
   removeRelation(id: string): void;
   undo(): void;
   redo(): void;
+  balanceLayout(): void;
 
   setNotesOpen(open: boolean): void;
   setShortcutsOpen(open: boolean): void;
@@ -299,6 +301,10 @@ export const useEditor = create<EditorState>()((set, get) => {
       const next = redoHistory(h);
       set({ history: next, selectedId: next.present.selectedId, focusTick: get().focusTick + 1 });
       refreshSearch();
+    },
+
+    balanceLayout() {
+      apply((m) => ({ map: balanceSides(m) }));
     },
 
     setNotesOpen(open) {

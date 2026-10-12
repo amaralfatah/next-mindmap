@@ -5,10 +5,12 @@ import {
   exportBackupJson,
   exportMapJson,
   exportMarkdown,
+  exportOpml,
   exportSvg,
   fileNameFor,
   importJson,
   importMarkdown,
+  importOpml,
   parseColor,
   toHex,
   type ExportPalette,
@@ -162,6 +164,33 @@ describe("SVG", () => {
     const svg = exportSvg(map, layoutMap(map, approxTextWidth), palette);
     expect(svg).not.toContain("Interview 5 users");
     expect(svg).toMatch(/>2<\/text>/);
+  });
+});
+
+describe("OPML", () => {
+  it("exports outlines and notes into OPML format", () => {
+    const map = sample();
+    const opml = exportOpml(map);
+    expect(opml).toContain('<opml version="2.0">');
+    expect(opml).toContain("<title>Launch plan</title>");
+    expect(opml).toContain('text="Research"');
+    expect(opml).toContain('_note="Ask about pricing&#10;and onboarding"');
+  });
+
+  it("round-trips map -> OPML -> map preserving text and outline structure", () => {
+    const map = sample();
+    const opml = exportOpml(map);
+    const imported = importOpml(opml);
+    expect(imported.title).toBe("Launch plan");
+    expect(imported.nodes[imported.rootId].childIds.length).toBe(2);
+
+    const firstChild = imported.nodes[imported.nodes[imported.rootId].childIds[0]];
+    expect(firstChild.text).toBe("Research");
+    expect(firstChild.childIds.length).toBe(1);
+
+    const grandChild = imported.nodes[firstChild.childIds[0]];
+    expect(grandChild.text).toBe("Interview 5 users");
+    expect(grandChild.note).toBe("Ask about pricing\nand onboarding");
   });
 });
 

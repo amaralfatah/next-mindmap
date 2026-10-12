@@ -49,6 +49,7 @@ import {
   exportBackupJson,
   importJson,
   importMarkdown,
+  importOpml,
 } from "@/lib/io";
 import {
   createMap,
@@ -261,6 +262,10 @@ export function Home() {
           imported.push(
             importMarkdown(text, file.name.replace(/\.[^.]+$/, "")),
           );
+        else if (name.endsWith(".opml"))
+          imported.push(
+            importOpml(text, file.name.replace(/\.[^.]+$/, "")),
+          );
         else
           toast.error(t.notices.importFailed, {
             description: t.notices.unsupportedFile,
@@ -384,7 +389,7 @@ export function Home() {
       <input
         ref={fileInput}
         type="file"
-        accept=".json,.md,.markdown,.txt,application/json,text/markdown,text/plain"
+        accept=".json,.md,.markdown,.txt,.opml,application/json,text/markdown,text/plain,text/x-opml,application/xml,text/xml"
         multiple
         hidden
         onChange={onFiles}

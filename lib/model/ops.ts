@@ -333,3 +333,47 @@ export function searchNodes(map: MindMap, query: string): string[] {
     return n.text.toLocaleLowerCase().includes(q) || (n.note?.toLocaleLowerCase().includes(q) ?? false);
   });
 }
+
+/**
+ * Distributes main branches (direct children of root) evenly between right and left sides.
+ * Uses subtree size to balance visual weight across both sides.
+ */
+export function balanceSides(map: MindMap): MindMap {
+  const root = map.nodes[map.rootId];
+  if (!root || root.childIds.length === 0) return map;
+
+  const children = root.childIds.map((id) => ({
+    id,
+    weight: subtreeIds(map, id).length,
+  }));
+
+  children.sort((a, b) => b.weight - a.weight);
+
+  let rightWeight = 0;
+  let leftWeight = 0;
+  const assignments: Record<string, Side> = {};
+
+  for (const { id, weight } of children) {
+    if (rightWeight <= leftWeight) {
+      assignments[id] = "right";
+      rightWeight += weight;
+    } else {
+      assignments[id] = "left";
+      leftWeight += weight;
+    }
+  }
+
+  const updatedNodes = { ...map.nodes };
+  let changed = false;
+
+  for (const id of root.childIds) {
+    const desiredSide = assignments[id];
+    if (updatedNodes[id].side !== desiredSide) {
+      updatedNodes[id] = { ...updatedNodes[id], side: desiredSide };
+      changed = true;
+    }
+  }
+
+  if (!changed) return map;
+  return touch(map, updatedNodes);
+}

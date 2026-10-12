@@ -1,11 +1,11 @@
 "use client";
 
-import { download, EXPORT_FONT, exportMapJson, exportMarkdown, exportSvg, FILE_EXTENSION, fileNameFor, readPalette, svgToPng } from "@/lib/io";
+import { download, EXPORT_FONT, exportMapJson, exportMarkdown, exportOpml, exportSvg, FILE_EXTENSION, fileNameFor, readPalette, svgToPng } from "@/lib/io";
 import { createCanvasTextWidth, layoutMap } from "@/lib/layout";
 import type { MindMap } from "@/lib/model";
 import { markExported } from "@/lib/storage";
 
-export type ExportFormat = "png" | "svg" | "md" | "json";
+export type ExportFormat = "png" | "svg" | "md" | "json" | "opml";
 
 /** Exports a map in the current theme. Images are laid out with the export font so text fits. */
 export async function exportMap(map: MindMap, format: ExportFormat): Promise<void> {
@@ -16,6 +16,10 @@ export async function exportMap(map: MindMap, format: ExportFormat): Promise<voi
   }
   if (format === "md") {
     download(exportMarkdown(map), fileNameFor(map.title, ".md"), "text/markdown");
+    return;
+  }
+  if (format === "opml") {
+    download(exportOpml(map), fileNameFor(map.title, ".opml"), "text/x-opml");
     return;
   }
   const layout = layoutMap(map, createCanvasTextWidth(() => EXPORT_FONT));

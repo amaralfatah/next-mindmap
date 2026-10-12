@@ -70,6 +70,19 @@ export async function PUT(request: Request, context: RouteParams) {
     const payload = { ...body, id };
     const validated = migrateMap(payload);
 
+    const [existing] = await db
+      .select({ userId: maps.userId })
+      .from(maps)
+      .where(eq(maps.id, id))
+      .limit(1);
+
+    if (existing && existing.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: Map belongs to another user" },
+        { status: 403 }
+      );
+    }
+
     await db
       .insert(maps)
       .values({
@@ -93,6 +106,7 @@ export async function PUT(request: Request, context: RouteParams) {
           updatedAt: validated.updatedAt,
           schemaVersion: validated.schemaVersion,
         },
+        where: eq(maps.userId, session.user.id),
       });
 
     return NextResponse.json({ success: true, map: validated });

@@ -88,6 +88,10 @@ function databaseBackend(): Backend {
       if (res.status === 401) return local.entries();
       if (!res.ok) throw new Error(`Failed to list maps: ${res.statusText}`);
       const data = await res.json();
+      if (!data.user) {
+        const localList = local.entries();
+        if (localList.length > 0) return localList;
+      }
       const list = (data.maps as MindMap[]) || [];
       return list.map((m) => [m.id, m]);
     },
