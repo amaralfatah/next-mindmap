@@ -1,4 +1,5 @@
 import { isBranchColor, isValidNodeColor, SCHEMA_VERSION, type MindMap, type MindNode, type Relation } from "./types";
+import { DEFAULT_TITLE } from "./ops";
 
 export class MapFormatError extends Error {
   constructor(
@@ -124,7 +125,7 @@ function validate(raw: Record<string, unknown>): MindMap {
   const createdAt = typeof raw.createdAt === "number" ? raw.createdAt : now;
   return {
     id: raw.id as string,
-    title: root.text.trim() || "Central idea",
+    title: root.text.trim() || DEFAULT_TITLE,
     rootId,
     nodes,
     ...(relations.length ? { relations } : {}),

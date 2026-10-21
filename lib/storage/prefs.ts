@@ -24,6 +24,8 @@ export function writePref(key: string, value: string | null): void {
 
 export const prefKeys = {
   lastExportAt: "last-export-at",
+  /** "1" when this browser was last seen signed in; picks the first screen before the session loads. */
+  signedIn: "signed-in",
 } as const;
 
 export function readNumberPref(key: string): number | null {

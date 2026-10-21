@@ -23,10 +23,12 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
 } from "react";
 import { toast } from "sonner";
 import { Notice } from "@/components/notice";
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme";
 import { AuthButton } from "@/components/auth-button";
 import { useSession } from "@/lib/auth/client";
@@ -39,10 +41,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Wordmark } from "@/components/wordmark";
 import { exportMap } from "@/lib/editor/export";
-import { t } from "@/lib/i18n";
+import { useLocale, useT } from "@/components/i18n-provider";
+import { getT, type Locale } from "@/lib/i18n";
 import { createSampleMap } from "@/lib/sample";
 import {
   download,
@@ -60,21 +62,26 @@ import {
   type MindMap,
 } from "@/lib/model";
 import {
+  adoptLegacyGuestMaps,
   broadcast,
   deleteMap,
   listMaps,
   loadMap,
   markExported,
+  prefKeys,
+  readPref,
   saveMap,
   subscribe,
+  writePref,
 } from "@/lib/storage";
+
+const noopSubscribe = () => () => {};
 import { DeleteDialog, PasteOutlineDialog, RenameDialog } from "./dialogs";
 import { HeroArt } from "./hero-art";
 import { MapThumb } from "./map-thumb";
 
-const relative = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-
-function timeAgo(ms: number, now: number): string {
+function timeAgo(ms: number, now: number, locale: Locale, justNow: string): string {
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   const seconds = Math.round((ms - now) / 1000);
   const steps: [Intl.RelativeTimeFormatUnit, number][] = [
     ["year", 31536000],
@@ -87,7 +94,7 @@ function timeAgo(ms: number, now: number): string {
   for (const [unit, size] of steps)
     if (Math.abs(seconds) >= size)
       return relative.format(Math.round(seconds / size), unit);
-  return "just now";
+  return justNow;
 }
 
 type Dialog =
@@ -127,6 +134,8 @@ function MapCard({
   onDelete: () => void;
   index: number;
 }) {
+  const t = useT();
+  const [locale] = useLocale();
   const href = `/map?id=${encodeURIComponent(map.id)}`;
   return (
     <li
@@ -148,7 +157,7 @@ function MapCard({
             {map.title}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {t.home.edited(timeAgo(map.updatedAt, now))} ·{" "}
+            {t.home.edited(timeAgo(map.updatedAt, now, locale, t.home.justNow))} ·{" "}
             {t.home.nodes(nodeCount(map))}
           </p>
         </div>
@@ -197,10 +206,13 @@ function MapCard({
 }
 
 export function Home() {
+  const t = useT();
+  const [locale] = useLocale();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const userId = session?.user?.id ?? null;
   const [maps, setMaps] = useState<MindMap[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [broken, setBroken] = useState(0);
   const [query, setQuery] = useState("");
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -210,19 +222,32 @@ export function Home() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(async () => {
-    const result = await listMaps();
-    setMaps(result.maps);
-    setBroken(result.broken.length);
-    setNow(Date.now());
+    try {
+      const result = await listMaps();
+      setMaps(result.maps);
+      setBroken(result.broken.length);
+      setNow(Date.now());
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    }
   }, []);
 
-  // Maps belong to the signed-in user, so reload the list whenever the session changes
+  // Maps belong to the signed-in account, so reload the list whenever the session changes
   // (sign in or out) instead of requiring a page refresh.
   useEffect(() => {
+    if (isPending) return;
+    writePref(prefKeys.signedIn, userId ? "1" : null);
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void refresh();
+    setMaps(null);
+    if (!userId) return;
+    void (async () => {
+      const adopted = await adoptLegacyGuestMaps();
+      if (adopted) toast.success(getT().notices.adopted(adopted));
+      await refresh();
+    })();
     return subscribe(() => void refresh());
-  }, [refresh, userId]);
+  }, [refresh, userId, isPending]);
 
   // Header edge appears only once content scrolls beneath it, instead of a permanent divider.
   useEffect(() => {
@@ -258,8 +283,8 @@ export function Home() {
     }
   }
 
-  const newMap = () => createAndOpen(createMap(), "&new=1");
-  const openSample = () => createAndOpen(createSampleMap());
+  const newMap = () => createAndOpen(createMap(t.editor.defaultTitle), "&new=1");
+  const openSample = () => createAndOpen(createSampleMap(locale));
 
   async function createFromOutline(markdown: string, fallbackTitle: string) {
     const map = importMarkdown(markdown, fallbackTitle);
@@ -345,7 +370,15 @@ export function Home() {
     await refresh();
   }
 
-  const hasMaps = Boolean(maps?.length);
+  const hasMaps = Boolean(userId && maps?.length);
+  // The session check can take seconds on a cold start. Rather than a blank page, show what this
+  // browser most likely gets: the map skeleton if it was signed in last time, else the welcome.
+  const wasSignedIn = useSyncExternalStore(
+    noopSubscribe,
+    () => readPref(prefKeys.signedIn) === "1",
+    () => false,
+  );
+  const loading = (isPending && wasSignedIn) || (Boolean(userId) && maps === null && !loadError);
 
   const actions = (size?: "lg") => {
     const cls = size ? "h-11 px-5 text-[15px]" : undefined;
@@ -391,17 +424,19 @@ export function Home() {
             href="/"
             className="flex items-center rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            <Wordmark />
+            <Wordmark className="whitespace-nowrap" />
           </Link>
           <div className="flex-1" />
+          <LanguageSwitch />
           <ThemeToggle />
           {hasMaps && (
-            <Button onClick={newMap} disabled={busy}>
+            <Button onClick={newMap} disabled={busy} className="shrink-0">
               <PlusIcon data-icon="inline-start" />
-              {t.home.newMap}
+              <span className="max-sm:sr-only">{t.home.newMap}</span>
             </Button>
           )}
-          <AuthButton />
+          {/* Signed out, the hero's own sign-in button is the action; on phones one is enough. */}
+          <AuthButton className={!isPending && !userId ? "max-sm:hidden" : undefined} />
         </div>
       </header>
 
@@ -426,7 +461,23 @@ export function Home() {
           </div>
         )}
 
-        {maps === null ? (
+        {loadError && (
+          <div className="pt-4">
+            <Notice
+              tone="warn"
+              icon={<TriangleAlertIcon />}
+              actions={
+                <Button size="sm" onClick={() => void refresh()}>
+                  {t.home.retry}
+                </Button>
+              }
+            >
+              {t.home.loadFailed}
+            </Notice>
+          </div>
+        )}
+
+        {loading ? (
           <section aria-label={t.home.loading} className="pt-8" role="status" aria-busy="true">
             <div className="flex flex-wrap items-end gap-3">
               <div className="h-9 w-40 rounded-lg bg-muted/70 animate-pulse" />
@@ -438,61 +489,60 @@ export function Home() {
               ))}
             </ul>
           </section>
-        ) : !hasMaps ? (
-          <section className="my-auto grid items-center gap-10 py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
+        ) : loadError ? null : !hasMaps ? (
+          <section className="grid items-center gap-8 pt-8 pb-12 sm:gap-10 lg:my-auto lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14 lg:py-10">
             <div className="rise">
-              <h1 className="font-display text-[clamp(2.5rem,6vw,4.25rem)] leading-[1.06] font-semibold tracking-[-0.02em] text-balance">
+              <h1 className="font-display text-[clamp(2.5rem,5.2vw,4rem)] leading-[1.06] font-semibold tracking-[-0.02em] text-balance">
                 {t.home.heroTitle}
               </h1>
               <p className="mt-5 max-w-md text-lg leading-relaxed text-pretty text-muted-foreground">
                 {t.home.heroLead}
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-2">
-                <Button
-                  size="lg"
-                  className="h-11 px-5 text-[15px]"
-                  onClick={newMap}
-                  disabled={busy}
-                >
-                  <PlusIcon data-icon="inline-start" />
-                  {t.home.newMap}
-                </Button>
-                {actions("lg")}
-              </div>
-              <button
-                type="button"
-                onClick={openSample}
-                disabled={busy}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-ink underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
-              >
-                {t.home.sample}
-                <ArrowRightIcon className="size-3.5" aria-hidden />
-              </button>
-            </div>
-            <figure className="rise overflow-hidden sticker rounded-3xl sm:rounded-[2rem] border-2 bg-paper-2 [animation-delay:120ms]">
-              <div className="dot-paper px-3 pt-6 pb-3 sm:px-6 sm:pt-8 sm:pb-4">
-                <HeroArt />
-              </div>
-              <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t bg-card px-4 py-3 text-sm text-muted-foreground sm:px-6">
-                <span className="font-medium text-foreground">
-                  {t.home.tryKeys}
-                </span>
-                {t.home.keyFlow.map((step) => (
-                  <span
-                    key={step.label}
-                    className="inline-flex items-center gap-1.5"
+              {userId ? (
+                <>
+                  <div className="mt-8 flex flex-wrap items-center gap-2">
+                    <Button
+                      size="lg"
+                      className="h-11 px-5 text-[15px]"
+                      onClick={newMap}
+                      disabled={busy}
+                    >
+                      <PlusIcon data-icon="inline-start" />
+                      {t.home.newMap}
+                    </Button>
+                    {actions("lg")}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openSample}
+                    disabled={busy}
+                    className="mt-4 inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-ink underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
                   >
-                    <KbdGroup>
-                      {step.keys.map((k) => (
-                        <Kbd key={k} className="min-w-6 font-mono">
-                          {k}
-                        </Kbd>
-                      ))}
-                    </KbdGroup>
-                    {step.label}
-                  </span>
-                ))}
-              </figcaption>
+                    {t.home.sample}
+                    <ArrowRightIcon className="size-3.5" aria-hidden />
+                  </button>
+                </>
+              ) : (
+                <div className="mt-8 flex flex-wrap items-center gap-2">
+                  <AuthButton cta={t.auth.signInToStart} />
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-11 px-5 text-[15px]"
+                    nativeButton={false}
+                    render={<Link href="/demo" />}
+                  >
+                    {t.home.tryFirst}
+                  </Button>
+                </div>
+              )}
+            </div>
+            {/* mr-1 = the sticker shadow's 4px offset, so the shadow ends on the page gutter. */}
+            <figure className="rise mr-1 overflow-hidden sticker rounded-3xl sm:rounded-[2rem] border-2 bg-paper-2 [animation-delay:120ms]">
+              <div className="dot-paper px-2 py-4 sm:px-6 sm:py-7">
+                <HeroArt crop className="sm:hidden" />
+                <HeroArt className="max-sm:hidden" />
+              </div>
             </figure>
           </section>
         ) : (
@@ -552,7 +602,7 @@ export function Home() {
 
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-5 text-sm text-muted-foreground sm:px-6">
-          <p className="mr-auto">{t.home.footerNote}</p>
+          <span className="mr-auto" />
           {hasMaps && (
             <Button variant="ghost" size="sm" onClick={exportAll}>
               <DownloadIcon data-icon="inline-start" />

@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 import type { MindNode } from "@/lib/model";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,7 @@ export type NodeStylePickerProps = {
  * Node style popover allowing users to customize Shape (fill) and Border.
  */
 export function NodeStylePicker({ node, side = "top", align = "start", className }: NodeStylePickerProps) {
+  const t = useT();
   const patch = useEditor((s) => s.patch);
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"shape" | "border">("shape");
@@ -73,7 +74,7 @@ export function NodeStylePicker({ node, side = "top", align = "start", className
       >
         <PaintRoller />
       </PopoverTrigger>
-      <PopoverContent side={side} align={align} className="w-[280px] p-3 shadow-xl border border-border/70 bg-popover/90 backdrop-blur-xl">
+      <PopoverContent side={side} align={align} className="w-[280px] p-3 shadow-xl border bg-popover">
         <input
           ref={colorInputRef}
           type="color"

@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { findDrop, type Drop } from "@/lib/editor/drop";
 import { useLayout } from "@/lib/editor/layout-context";
 import { useEditor, useMap } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 import { isRoot, relationPath } from "@/lib/layout";
 import { subtreeIds } from "@/lib/model";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,7 @@ function pointerOf(event: MouseEvent | TouchEvent): { x: number; y: number } {
 }
 
 export function Canvas() {
+  const t = useT();
   const map = useMap();
   const layout = useLayout();
   const selectedId = useEditor((s) => s.selectedId);

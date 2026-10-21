@@ -1,4 +1,4 @@
-import { migrateMap, nodeCount, type MindMap } from "@/lib/model";
+import { MapFormatError, migrateMap, nodeCount, type MindMap } from "@/lib/model";
 
 /**
  * Map persistence via Next.js API routes backed by Neon PostgreSQL.
@@ -12,86 +12,76 @@ export type MapSummary = {
   nodeCount: number;
 };
 
+/** The request was refused because nobody is signed in. Maps live only in the signed-in account. */
+export class UnauthorizedError extends Error {
+  constructor() {
+    super("Sign in to open your maps");
+    this.name = "UnauthorizedError";
+  }
+}
+
+/** A conditional save found a newer copy than the one it was based on. */
+export class SaveConflictError extends Error {
+  constructor() {
+    super("The map was changed elsewhere");
+    this.name = "SaveConflictError";
+  }
+}
+
+/** A conditional save found that the map no longer exists. */
+export class MapGoneError extends Error {
+  constructor() {
+    super("The map was deleted elsewhere");
+    this.name = "MapGoneError";
+  }
+}
+
 export type Backend = {
   get(id: string): Promise<unknown>;
-  set(id: string, value: MindMap): Promise<void>;
+  /**
+   * Writes the map. With `base`, the write only lands if the stored copy still has that
+   * `updatedAt`; otherwise it throws `SaveConflictError`, or `MapGoneError` if it was deleted.
+   */
+  set(id: string, value: MindMap, base?: number): Promise<void>;
   del(id: string): Promise<void>;
   entries(): Promise<[string, unknown][]>;
 };
 
-const LOCAL_PREFIX = "mindmap:map:";
+async function check(res: Response, what: string): Promise<Response> {
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error(`Failed to ${what}: ${res.status} ${res.statusText}`);
+  return res;
+}
 
-/** Guest storage: maps live in this browser only. */
-const local = {
-  get(id: string): unknown {
-    try {
-      const raw = localStorage.getItem(LOCAL_PREFIX + id);
-      return raw ? JSON.parse(raw) : undefined;
-    } catch {
-      return undefined;
-    }
-  },
-  set(id: string, value: MindMap) {
-    localStorage.setItem(LOCAL_PREFIX + id, JSON.stringify(value));
-  },
-  del(id: string) {
-    try {
-      localStorage.removeItem(LOCAL_PREFIX + id);
-    } catch {}
-  },
-  entries(): [string, unknown][] {
-    const out: [string, unknown][] = [];
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key?.startsWith(LOCAL_PREFIX)) continue;
-        out.push([key.slice(LOCAL_PREFIX.length), JSON.parse(localStorage.getItem(key)!)]);
-      }
-    } catch {}
-    return out;
-  },
-};
-
-/** Cloud when signed in (API returns 401 otherwise), localStorage as guest fallback. */
+/** Maps of the signed-in account, through the `/api/maps` routes backed by Neon PostgreSQL. */
 function databaseBackend(): Backend {
   return {
-    get: async (id: string) => {
-      const res = await fetch(`/api/maps/${encodeURIComponent(id)}`, {
-        cache: "no-store",
-      });
-      if (res.status === 404 || res.status === 401) return local.get(id);
-      if (!res.ok) throw new Error(`Failed to load map: ${res.statusText}`);
-      const data = await res.json();
+    get: async (id) => {
+      const res = await fetch(`/api/maps/${encodeURIComponent(id)}`, { cache: "no-store" });
+      if (res.status === 404) return undefined;
+      const data = await (await check(res, "load map")).json();
       return data.map;
     },
-    set: async (id: string, value: MindMap) => {
+    set: async (id, value, base) => {
       const res = await fetch(`/api/maps/${encodeURIComponent(id)}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(base !== undefined ? { "X-Base-Updated-At": String(base) } : null),
+        },
         body: JSON.stringify(value),
       });
-      if (res.status === 401) return local.set(id, value);
-      if (!res.ok) throw new Error(`Failed to save map: ${res.statusText}`);
-      local.del(id);
+      if (res.status === 409) throw new SaveConflictError();
+      if (res.status === 410) throw new MapGoneError();
+      await check(res, "save map");
     },
-    del: async (id: string) => {
-      local.del(id);
-      const res = await fetch(`/api/maps/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-      if (!res.ok && res.status !== 404 && res.status !== 401) {
-        throw new Error(`Failed to delete map: ${res.statusText}`);
-      }
+    del: async (id) => {
+      const res = await fetch(`/api/maps/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (res.status !== 404) await check(res, "delete map");
     },
     entries: async () => {
       const res = await fetch("/api/maps", { cache: "no-store" });
-      if (res.status === 401) return local.entries();
-      if (!res.ok) throw new Error(`Failed to list maps: ${res.statusText}`);
-      const data = await res.json();
-      if (!data.user) {
-        const localList = local.entries();
-        if (localList.length > 0) return localList;
-      }
+      const data = await (await check(res, "list maps")).json();
       const list = (data.maps as MindMap[]) || [];
       return list.map((m) => [m.id, m]);
     },
@@ -102,7 +92,14 @@ export function memoryBackend(): Backend {
   const data = new Map<string, MindMap>();
   return {
     get: async (id) => structuredClone(data.get(id)),
-    set: async (id, value) => void data.set(id, structuredClone(value)),
+    set: async (id, value, base) => {
+      if (base !== undefined) {
+        const current = data.get(id);
+        if (!current) throw new MapGoneError();
+        if (current.updatedAt !== base) throw new SaveConflictError();
+      }
+      data.set(id, structuredClone(value));
+    },
     del: async (id) => void data.delete(id),
     entries: async () => [...data.entries()].map(([k, v]) => [k, structuredClone(v)] as [string, unknown]),
   };
@@ -155,12 +152,42 @@ export async function loadMap(id: string): Promise<MindMap | null> {
   return migrateMap(value);
 }
 
-export async function saveMap(map: MindMap): Promise<void> {
+/** Saves the map; pass `base` (the `updatedAt` this copy was built on) to refuse overwriting newer edits. */
+export async function saveMap(map: MindMap, base?: number): Promise<void> {
   const b = getBackend();
-  await b.set(map.id, map);
+  await b.set(map.id, map, base);
 }
 
 export async function deleteMap(id: string): Promise<void> {
   const b = getBackend();
   await b.del(id);
+}
+
+const LEGACY_PREFIX = "mindmap:map:";
+
+/**
+ * Guest mode is gone, but maps made as a guest may still sit in this browser's localStorage.
+ * Once someone signs in, move them into the account so they are not stranded, then clear them.
+ * Returns how many maps were moved.
+ */
+export async function adoptLegacyGuestMaps(): Promise<number> {
+  let keys: string[];
+  try {
+    keys = Object.keys(localStorage).filter((k) => k.startsWith(LEGACY_PREFIX));
+  } catch {
+    return 0;
+  }
+  let moved = 0;
+  for (const key of keys) {
+    try {
+      const map = migrateMap(JSON.parse(localStorage.getItem(key)!));
+      if (!(await getBackend().get(map.id))) await saveMap(map);
+      localStorage.removeItem(key);
+      moved++;
+    } catch (err) {
+      // Unreadable leftovers are dropped; failed uploads stay for the next sign-in.
+      if (err instanceof MapFormatError || err instanceof SyntaxError) localStorage.removeItem(key);
+    }
+  }
+  return moved;
 }

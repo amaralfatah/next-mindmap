@@ -25,7 +25,7 @@ import {
 } from "@/lib/model";
 
 /** `conflict`: another tab saved this map; `deleted`: it was removed. Both pause autosave. */
-export type SaveState = "saved" | "saving" | "error" | "conflict" | "deleted";
+export type SaveState = "saved" | "saving" | "error" | "conflict" | "deleted" | "signedOut";
 
 type Search = { open: boolean; query: string; results: string[]; index: number };
 

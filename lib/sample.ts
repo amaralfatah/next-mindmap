@@ -1,39 +1,143 @@
 import { importMarkdown } from "@/lib/io";
+import type { Locale } from "@/lib/i18n";
 import type { MindMap } from "@/lib/model";
 
-/** A small, real-looking map so a first-time visitor can poke at Mind Map before making their own. */
-const SAMPLE = `# Trip to Lombok
+/** A small map of a crowded head, so a first-time user can poke at Mind Map before making their own. */
+const SAMPLE_ID = `# Isi kepalaku
 
-## Before
-- **Book flights**
-  > Compare Lion Air and Citilink for the 14th.
-- Pack light
-  - Rain jacket
-  - Trekking shoes
-- Exchange some cash
+## Kerjaan
+- **Laporan Q4**
+  > Tenggat Jumat. Minta data penjualan dulu.
+- Rapat Senin
+  - Siapkan tiga poin
+- Belum dibalas
+  - Email klien
+  - Revisi kontrak
 
-## During
-- Rinjani trek
-  - 2 nights, 3 days
-  - Hire a local guide
-- Gili islands
-  - Snorkel at Gili Meno
-- Kuta beach
+## Keuangan
+- Dana darurat
+  - Target 6 bulan pengeluaran
+- Cicilan
+- Langganan yang jarang dipakai
 
-## After
-- Photo book
-- Write it up
+## Nikah
+- Cari gedung
+  - Bandingkan tiga tempat
+- Daftar tamu
+- Tabungan nikah
 
-## Budget
-- Flights
-- Guide and porters
-- Boats between islands
+## Belajar
+- Kursus yang tertunda
+- Buku yang belum selesai
 
-## People
-- Rina
-- Dimas
+## Kesehatan
+- Tidur sebelum jam 11
+- Jalan pagi
 `;
 
-export function createSampleMap(): MindMap {
-  return importMarkdown(SAMPLE, "Trip to Lombok");
+const SAMPLE_EN = `# On my mind
+
+## Work
+- **Q4 report**
+  > Due Friday. Ask for the sales numbers first.
+- Monday sync
+  - Prepare three points
+- Still to reply
+  - Client email
+  - Contract revisions
+
+## Money
+- Savings
+  - Six months of expenses
+- Loan
+- Subscriptions I barely use
+
+## Wedding
+- Book a venue
+  - Compare three places
+- Guest list
+- Wedding savings
+
+## Learning
+- The course I paused
+- Books I haven't finished
+
+## Health
+- Sleep before 11
+- Morning walk
+`;
+
+const SAMPLES: Record<Locale, { markdown: string; title: string }> = {
+  id: { markdown: SAMPLE_ID, title: "Isi kepalaku" },
+  en: { markdown: SAMPLE_EN, title: "On my mind" },
+};
+
+/** The no-sign-in demo: growing up and carrying two generations at once (the sandwich generation). */
+const DEMO_ID = `# Beranjak dewasa
+
+## Orang tua
+- **Biaya berobat ayah**
+  > Cek dulu mana yang ditanggung BPJS.
+- Kirim uang bulanan
+- Atap rumah bocor
+
+## Adik
+- Uang kuliah semester depan
+- Laptop buat tugas
+
+## Diri sendiri
+- Dana darurat
+  - Target 6 bulan pengeluaran
+- Tabungan nikah
+- Cicilan motor
+
+## Kerjaan
+- Minta naik gaji
+- Cari kerja sampingan
+
+## Napas sebentar
+- Tidur cukup
+- Bilang tidak tanpa merasa bersalah
+`;
+
+const DEMO_EN = `# Growing up
+
+## Parents
+- **Dad's medical bills**
+  > Check what insurance covers first.
+- Money home every month
+- The leaking roof
+
+## Younger sibling
+- Next semester's tuition
+- A laptop for school
+
+## Me
+- Emergency fund
+  - Six months of expenses
+- Wedding savings
+- Motorbike loan
+
+## Work
+- Ask for a raise
+- Find a side gig
+
+## Room to breathe
+- Enough sleep
+- Saying no without guilt
+`;
+
+const DEMOS: Record<Locale, { markdown: string; title: string }> = {
+  id: { markdown: DEMO_ID, title: "Beranjak dewasa" },
+  en: { markdown: DEMO_EN, title: "Growing up" },
+};
+
+export function createDemoMap(locale: Locale): MindMap {
+  const demo = DEMOS[locale];
+  return importMarkdown(demo.markdown, demo.title);
+}
+
+export function createSampleMap(locale: Locale): MindMap {
+  const sample = SAMPLES[locale];
+  return importMarkdown(sample.markdown, sample.title);
 }

@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { addChild, createMap } from "@/lib/model";
-import { deleteMap, listMaps, loadMap, memoryBackend, saveMap, setBackend, summarize } from "./index";
+import {
+  deleteMap,
+  listMaps,
+  loadMap,
+  MapGoneError,
+  memoryBackend,
+  SaveConflictError,
+  saveMap,
+  setBackend,
+  summarize,
+} from "./index";
 
 describe("map storage via backend", () => {
   it("saves, lists newest first, loads and deletes", async () => {
@@ -24,6 +34,20 @@ describe("map storage via backend", () => {
     const { maps, broken } = await listMaps();
     expect(maps.map((m) => m.title)).toEqual(["Good"]);
     expect(broken).toEqual(["bad"]);
+  });
+
+  it("conditional saves refuse to overwrite newer or deleted maps", async () => {
+    setBackend(memoryBackend());
+    const a = { ...createMap("A"), updatedAt: 1 };
+    await saveMap(a);
+    await saveMap({ ...a, title: "A2", updatedAt: 2 }, 1);
+    await expect(saveMap({ ...a, title: "stale", updatedAt: 3 }, 1)).rejects.toBeInstanceOf(SaveConflictError);
+    expect((await loadMap(a.id))?.updatedAt).toBe(2);
+    await deleteMap(a.id);
+    await expect(saveMap({ ...a, updatedAt: 4 }, 2)).rejects.toBeInstanceOf(MapGoneError);
+    // Without a base the write is unconditional, which is how "keep mine" restores a map.
+    await saveMap({ ...a, updatedAt: 5 });
+    expect((await loadMap(a.id))?.updatedAt).toBe(5);
   });
 
   it("summarizes a map", () => {

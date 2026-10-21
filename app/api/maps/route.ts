@@ -3,6 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import { db, maps } from "@/lib/db";
 import { auth } from "@/lib/auth/server";
 import { migrateMap, type MindMap } from "@/lib/model";
+import { readMapBody } from "@/lib/server/read-map";
 
 /**
  * Handle listing all mind maps for the authenticated user from PostgreSQL.
@@ -65,8 +66,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = (await request.json()) as MindMap;
-    if (!body || !body.id || !body.title || !body.rootId || !body.nodes) {
+    const read = await readMapBody(request);
+    if ("error" in read) return read.error;
+    const body = read.body as MindMap | null;
+    if (!body || typeof body !== "object" || !body.id || !body.title || !body.rootId || !body.nodes) {
       return NextResponse.json({ error: "Invalid map payload" }, { status: 400 });
     }
 

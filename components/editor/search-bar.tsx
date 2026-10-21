@@ -4,9 +4,10 @@ import { ChevronDownIcon, ChevronUpIcon, SearchIcon, XIcon } from "lucide-react"
 import { useEffect, useRef } from "react";
 import { IconButton } from "@/components/icon-button";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 
 export function SearchBar() {
+  const t = useT();
   const search = useEditor((s) => s.search);
   const { setQuery, stepSearch, closeSearch } = useEditor.getState();
   const input = useRef<HTMLInputElement>(null);

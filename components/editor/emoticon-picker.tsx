@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 import type { MindNode } from "@/lib/model";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +43,7 @@ export function EmoticonPicker({
   className,
   triggerButton,
 }: EmoticonPickerProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<EmoticonCategory>("popular");
   const [query, setQuery] = useState("");

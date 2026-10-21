@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 
 /**
  * Google brand icon for OAuth button.
@@ -51,9 +51,11 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 /**
- * Auth button and modal dialog for user authentication with Neon Auth.
+ * Auth button and modal dialog for user authentication with Neon Auth. `cta` renders the
+ * signed-out trigger as the page's primary action, for screens that need an account to continue.
  */
-export function AuthButton({ className }: { className?: string }) {
+export function AuthButton({ className, cta }: { className?: string; cta?: string }) {
+  const t = useT();
   const { data: session, isPending } = useSession();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
@@ -126,7 +128,7 @@ export function AuthButton({ className }: { className?: string }) {
 
   const [imageError, setImageError] = useState(false);
 
-  if (isPending) {
+  if (isPending && !cta) {
     return (
       <div
         className={`size-8 rounded-full border border-border/80 bg-muted/60 ${className ?? ""}`}
@@ -184,7 +186,7 @@ export function AuthButton({ className }: { className?: string }) {
               )}
               <div className="flex flex-col min-w-0">
                 <span className="font-semibold text-sm text-foreground truncate">
-                  {user.name || "User"}
+                  {user.name || t.auth.userFallback}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
                   {user.email}
@@ -193,11 +195,8 @@ export function AuthButton({ className }: { className?: string }) {
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={handleSignOut}
-            className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-          >
-            <LogOutIcon className="size-4 mr-2" />
+          <DropdownMenuItem onClick={handleSignOut}>
+            <LogOutIcon />
             <span>{t.auth.signOut}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -207,18 +206,33 @@ export function AuthButton({ className }: { className?: string }) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          setErrorMsg(null);
-          setDialogOpen(true);
-        }}
-        className={`gap-1.5 text-xs font-medium ${className ?? ""}`}
-      >
-        <LogInIcon className="size-3.5" />
-        <span>{t.auth.signIn}</span>
-      </Button>
+      {cta ? (
+        <Button
+          size="lg"
+          disabled={isPending}
+          onClick={() => {
+            setErrorMsg(null);
+            setDialogOpen(true);
+          }}
+          className={`h-11 px-5 text-[15px] ${className ?? ""}`}
+        >
+          <LogInIcon data-icon="inline-start" />
+          {cta}
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setErrorMsg(null);
+            setDialogOpen(true);
+          }}
+          className={`shrink-0 gap-1.5 text-xs font-medium ${className ?? ""}`}
+        >
+          <LogInIcon className="size-3.5" />
+          <span>{t.auth.signIn}</span>
+        </Button>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[380px] p-6">
@@ -245,7 +259,7 @@ export function AuthButton({ className }: { className?: string }) {
 
             <div className="relative flex items-center justify-center">
               <span className="absolute inset-x-0 h-px bg-border" />
-              <span className="relative bg-popover px-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+              <span className="relative bg-popover px-2 text-xs text-muted-foreground">
                 {t.auth.orWithEmail}
               </span>
             </div>

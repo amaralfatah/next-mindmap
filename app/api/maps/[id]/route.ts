@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db, maps } from "@/lib/db";
 import { auth } from "@/lib/auth/server";
 import { migrateMap, type MindMap } from "@/lib/model";
+import { readMapBody } from "@/lib/server/read-map";
 
 type RouteParams = {
   params: Promise<{ id: string }>;
@@ -61,14 +62,48 @@ export async function PUT(request: Request, context: RouteParams) {
     }
 
     const { id } = await context.params;
-    const body = (await request.json()) as MindMap;
+    const read = await readMapBody(request);
+    if ("error" in read) return read.error;
+    const body = read.body as MindMap | null;
 
-    if (!body || !body.nodes) {
+    if (!body || typeof body !== "object" || !body.nodes) {
       return NextResponse.json({ error: "Invalid map payload" }, { status: 400 });
     }
 
-    const payload = { ...body, id };
-    const validated = migrateMap(payload);
+    const validated = migrateMap({ ...body, id });
+    const fields = {
+      title: validated.title,
+      rootId: validated.rootId,
+      nodes: validated.nodes,
+      relations: validated.relations ?? null,
+      updatedAt: validated.updatedAt,
+      schemaVersion: validated.schemaVersion,
+    };
+
+    // Conditional save: only write over the copy the client last saw, so edits made in another
+    // tab or device are never silently overwritten, and a deleted map is not brought back.
+    const baseHeader = request.headers.get("x-base-updated-at");
+    if (baseHeader !== null) {
+      const base = Number(baseHeader);
+      if (!Number.isFinite(base)) {
+        return NextResponse.json({ error: "Invalid base version" }, { status: 400 });
+      }
+      const updated = await db
+        .update(maps)
+        .set(fields)
+        .where(and(eq(maps.id, id), eq(maps.userId, session.user.id), eq(maps.updatedAt, base)))
+        .returning({ id: maps.id });
+      if (updated.length) return NextResponse.json({ success: true, map: validated });
+
+      const [current] = await db
+        .select({ updatedAt: maps.updatedAt })
+        .from(maps)
+        .where(and(eq(maps.id, id), eq(maps.userId, session.user.id)))
+        .limit(1);
+      return current
+        ? NextResponse.json({ error: "Map was changed elsewhere", updatedAt: current.updatedAt }, { status: 409 })
+        : NextResponse.json({ error: "Map was deleted" }, { status: 410 });
+    }
 
     const [existing] = await db
       .select({ userId: maps.userId })
@@ -88,24 +123,12 @@ export async function PUT(request: Request, context: RouteParams) {
       .values({
         id: validated.id,
         userId: session.user.id,
-        title: validated.title,
-        rootId: validated.rootId,
-        nodes: validated.nodes,
-        relations: validated.relations ?? null,
         createdAt: validated.createdAt,
-        updatedAt: validated.updatedAt,
-        schemaVersion: validated.schemaVersion,
+        ...fields,
       })
       .onConflictDoUpdate({
         target: maps.id,
-        set: {
-          title: validated.title,
-          rootId: validated.rootId,
-          nodes: validated.nodes,
-          relations: validated.relations ?? null,
-          updatedAt: validated.updatedAt,
-          schemaVersion: validated.schemaVersion,
-        },
+        set: fields,
         where: eq(maps.userId, session.user.id),
       });
 

@@ -37,7 +37,12 @@ export function roleOf(depth: number): NodeRole {
 /** Horizontal distance from node anchor to the expand/collapse toggle button. */
 export const TOGGLE_OFFSET = 14;
 
-export const PLACEHOLDER = "Untitled";
+/** Shown (and measured) for a node with no text. Follows the UI language via `setPlaceholder`. */
+export let PLACEHOLDER = "Untitled";
+
+export function setPlaceholder(text: string): void {
+  PLACEHOLDER = text;
+}
 
 /** Stroke width of the edge into a node at this depth; a leaf's underline uses the same value. */
 export const edgeWidth = (depth: number): number => (depth === 1 ? 3 : depth === 2 ? 2 : 1.5);

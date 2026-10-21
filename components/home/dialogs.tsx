@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 
 export function RenameDialog({
   title,
@@ -39,6 +39,7 @@ export function RenameDialog({
 }
 
 function RenameForm({ title, onSave, onCancel }: { title: string; onSave: (t: string) => void; onCancel: () => void }) {
+  const t = useT();
   const [value, setValue] = useState(title);
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -76,6 +77,7 @@ export function DeleteDialog({
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }) {
+  const t = useT();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -103,6 +105,7 @@ export function PasteOutlineDialog({
   onOpenChange: (open: boolean) => void;
   onCreate: (markdown: string, fallbackTitle: string) => void;
 }) {
+  const t = useT();
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
 

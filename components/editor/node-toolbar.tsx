@@ -6,29 +6,134 @@ import {
   ChevronsUpDownIcon,
   CornerDownRightIcon,
   ItalicIcon,
+  Link2Icon,
+  LinkIcon,
   ListPlusIcon,
   PaletteIcon,
   PencilIcon,
+  SplineIcon,
   StickyNoteIcon,
   Trash2Icon,
 } from "lucide-react";
+import { useState, type FormEvent } from "react";
 import { IconButton } from "@/components/icon-button";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEditor, useMap } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
-import { branchColors, effectiveColor } from "@/lib/model";
+import { useT } from "@/components/i18n-provider";
+import { branchColors, effectiveColor, type MindNode } from "@/lib/model";
 import { cn } from "@/lib/utils";
 import { removeSelected } from "./actions";
 import { EmoticonPicker } from "./emoticon-picker";
 import { NodeStylePicker } from "./node-style-picker";
 
+/** Phones get a compact bar that fits 360px without scrolling; dividers and extras drop there. */
+const touch = "max-sm:size-10 max-sm:min-w-10";
+
 function Divider() {
-  return <span aria-hidden className="mx-0.5 h-5 w-px shrink-0 bg-border" />;
+  return <span aria-hidden className="mx-0.5 h-5 w-px shrink-0 bg-border max-sm:hidden" />;
+}
+
+/** Accepts "example.com" as well as full URLs; only http(s) is kept. */
+function normalizeLink(raw: string): string | undefined {
+  const value = raw.trim();
+  if (!value) return undefined;
+  const url = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  try {
+    return new URL(url).href;
+  } catch {
+    return undefined;
+  }
+}
+
+function LinkEditor({ node }: { node: MindNode }) {
+  const t = useT();
+  const patch = useEditor((s) => s.patch);
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(node.link ?? "");
+
+  function save(e: FormEvent) {
+    e.preventDefault();
+    patch({ link: normalizeLink(draft) }, node.id);
+    setOpen(false);
+  }
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        if (next) setDraft(node.link ?? "");
+        setOpen(next);
+      }}
+    >
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t.editor.link}
+                  aria-pressed={Boolean(node.link)}
+                  className="aria-pressed:bg-accent max-sm:hidden"
+                />
+              }
+            />
+          }
+        >
+          <LinkIcon />
+        </TooltipTrigger>
+        <TooltipContent side="top">{t.editor.link}</TooltipContent>
+      </Tooltip>
+      <PopoverContent side="top" className="w-80 p-2">
+        <form onSubmit={save} className="flex items-center gap-1.5">
+          <input
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={t.editor.linkPlaceholder}
+            aria-label={t.editor.link}
+            inputMode="url"
+            className="h-8 min-w-0 flex-1 rounded-md border bg-background px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <Button type="submit" size="sm">
+            {t.editor.linkSave}
+          </Button>
+          {node.link && (
+            <>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                nativeButton={false}
+                aria-label={t.editor.linkOpen}
+                title={t.editor.linkOpen}
+                render={<a href={node.link} target="_blank" rel="noopener noreferrer" />}
+              >
+                <Link2Icon />
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  patch({ link: undefined }, node.id);
+                  setOpen(false);
+                }}
+              >
+                {t.editor.linkRemove}
+              </Button>
+            </>
+          )}
+        </form>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function ColorPicker({ nodeId }: { nodeId: string }) {
+  const t = useT();
   const map = useMap();
   const patch = useEditor((s) => s.patch);
   if (!map) return null;
@@ -42,7 +147,7 @@ function ColorPicker({ nodeId }: { nodeId: string }) {
         <TooltipTrigger
           render={
             <PopoverTrigger
-              render={<Button variant="ghost" size="icon" aria-label={t.editor.color} disabled={node.parentId === null} className="max-sm:size-11 max-sm:min-w-11" />}
+              render={<Button variant="ghost" size="icon" aria-label={t.editor.color} disabled={node.parentId === null} className={touch} />}
             />
           }
         >
@@ -98,6 +203,7 @@ function ColorPicker({ nodeId }: { nodeId: string }) {
 
 /** Actions for the selected node. Primary input on phones; a discoverable cheat sheet on desktop. */
 export function NodeToolbar() {
+  const t = useT();
   const map = useMap();
   const selectedId = useEditor((s) => s.selectedId);
   const notesOpen = useEditor((s) => s.notesOpen);
@@ -112,7 +218,7 @@ export function NodeToolbar() {
       <div
         role="toolbar"
         aria-label={t.editor.nodeActions}
-        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-border/60 bg-background/80 p-1.5 shadow-lg shadow-black/[0.04] backdrop-blur-xl [scrollbar-width:none] dark:shadow-black/20"
+        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto max-sm:gap-0 rounded-2xl border bg-card p-1.5 shadow-lg shadow-black/[0.05] [scrollbar-width:none] dark:shadow-black/25"
       >
         <IconButton
           label={t.editor.addChild}
@@ -120,7 +226,7 @@ export function NodeToolbar() {
           keys={["Tab"]}
           side="top"
           onClick={() => s.addChild()}
-          className="h-11 px-3.5 font-semibold text-ink sm:h-9 sm:px-3"
+          className="font-semibold text-ink max-sm:size-10 max-sm:min-w-10 max-sm:px-0 sm:h-9 sm:px-3 max-sm:[&>span]:hidden"
         >
           <CornerDownRightIcon />
         </IconButton>
@@ -131,18 +237,18 @@ export function NodeToolbar() {
           side="top"
           onClick={() => s.addSibling()}
           disabled={isRoot}
-          className="h-11 px-3.5 font-semibold text-ink sm:h-9 sm:px-3"
+          className="font-semibold text-ink max-sm:size-10 max-sm:min-w-10 max-sm:px-0 sm:h-9 sm:px-3 max-sm:[&>span]:hidden"
         >
           <ListPlusIcon />
         </IconButton>
         <Divider />
-        <IconButton label={t.editor.edit} keys={["F2"]} side="top" onClick={() => s.startEdit()} className="max-sm:size-11 max-sm:min-w-11">
+        <IconButton label={t.editor.edit} keys={["F2"]} side="top" onClick={() => s.startEdit()} className={touch}>
           <PencilIcon />
         </IconButton>
         <Divider />
         <ColorPicker nodeId={selectedId} />
-        <NodeStylePicker node={node} side="top" align="center" className="max-sm:size-11 max-sm:min-w-11" />
-        <EmoticonPicker node={node} side="top" align="center" className="max-sm:size-11 max-sm:min-w-11" />
+        <NodeStylePicker node={node} side="top" align="center" className={touch} />
+        <EmoticonPicker node={node} side="top" align="center" className={touch} />
         <IconButton
           label={t.editor.bold}
           keys={["Ctrl", "B"]}
@@ -168,10 +274,19 @@ export function NodeToolbar() {
           keys={["Ctrl", "."]}
           side="top"
           aria-pressed={notesOpen}
-          className="aria-pressed:bg-accent max-sm:size-11 max-sm:min-w-11"
+          className={`aria-pressed:bg-accent ${touch}`}
           onClick={() => s.setNotesOpen(!notesOpen)}
         >
           <StickyNoteIcon />
+        </IconButton>
+        <LinkEditor key={node.id} node={node} />
+        <IconButton
+          label={t.editor.connect}
+          side="top"
+          onClick={() => s.startConnect()}
+          className="max-sm:hidden"
+        >
+          <SplineIcon />
         </IconButton>
         <IconButton
           label={node.collapsed ? t.editor.expand : t.editor.collapse}
@@ -179,7 +294,7 @@ export function NodeToolbar() {
           side="top"
           onClick={() => s.toggleCollapse()}
           disabled={isRoot || !hasChildren}
-          className="max-sm:size-11 max-sm:min-w-11"
+          className="max-sm:hidden"
         >
           {node.collapsed ? <ChevronsUpDownIcon /> : <ChevronsDownUpIcon />}
         </IconButton>
@@ -190,7 +305,7 @@ export function NodeToolbar() {
           side="top"
           onClick={removeSelected}
           disabled={isRoot}
-          className="hover:bg-destructive/10 hover:text-destructive max-sm:size-11 max-sm:min-w-11"
+          className={`hover:bg-destructive/10 hover:text-destructive ${touch}`}
         >
           <Trash2Icon />
         </IconButton>

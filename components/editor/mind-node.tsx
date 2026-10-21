@@ -5,11 +5,10 @@ import { Link2Icon, PlusIcon, StickyNoteIcon } from "lucide-react";
 import { memo, useEffect, useLayoutEffect, useRef, type KeyboardEvent } from "react";
 import type { DropMode } from "@/lib/editor/drop";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 import { edgeWidth, isRoot, metrics, PLACEHOLDER, roleOf, type Box } from "@/lib/layout";
 import { isBranchColor, type MindNode as Model } from "@/lib/model";
 import { cn } from "@/lib/utils";
-import { FloatingBar } from "./floating-bar";
 
 export type MindNodeData = {
   box: Box;
@@ -55,6 +54,7 @@ export function getContrastTextColor(fillColor: string | undefined): string | un
 }
 
 function Editor({ box, node }: { box: Box; node: Model }) {
+  const t = useT();
   const ref = useRef<HTMLTextAreaElement>(null);
   const draft = useEditor((s) => s.draft);
   const { setDraft, commitEdit, escapeEdit, addChild, addSibling } = useEditor.getState();
@@ -147,18 +147,8 @@ function AddButton({ label, onClick, className }: { label: string; onClick: () =
   );
 }
 
-function Hint({ keys, label, flip }: { keys: string; label: string; flip: boolean }) {
-  return (
-    <span className={cn("flex h-5 items-center gap-1.5 whitespace-nowrap", flip && "flex-row-reverse")}>
-      <kbd className="inline-flex items-center justify-center rounded border border-border/80 bg-muted/90 px-1.5 py-0.5 font-mono text-[10px] font-medium text-foreground shadow-2xs">
-        {keys}
-      </kbd>
-      <span>{label}</span>
-    </span>
-  );
-}
-
 function MindNodeView({ data }: NodeProps<MindFlowNode>) {
+  const t = useT();
   const { box, node, selected, editing, match, drop, dimmed, connecting, dragging } = data;
   const m = metrics[roleOf(box.depth)];
   const color = branchVar(box.color);
@@ -253,21 +243,11 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
       )}
 
       {selected && !drop && !dimmed && (
-        <>
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -inset-1.5 z-10 rounded-[14px] border-2 border-ink shadow-[0_0_0_1px_var(--background)]"
-          />
-          {!editing && (
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -right-[11px] -bottom-[11px] z-10 size-2.5 rounded-full border-2 border-ink bg-background shadow-xs"
-            />
-          )}
-        </>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -inset-1.5 z-10 rounded-[14px] border-2 border-ink shadow-[0_0_0_1px_var(--background)]"
+        />
       )}
-
-      <FloatingBar node={node} visible={selected && !editing && !dimmed && !connecting} />
 
       {/* Sibling below: only for nodes with parent */}
       {selected && !editing && !drop && !dimmed && !connecting && node.parentId !== null && (
@@ -285,15 +265,6 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
           )}
         >
           <AddButton label={t.editor.addChild} onClick={() => useEditor.getState().addChild(node.id)} />
-          {node.childIds.length === 0 && (
-            <div
-              aria-hidden
-              className={cn("pointer-events-none flex flex-col gap-1.5 text-[11px] text-muted-foreground", box.side === "left" && "items-end")}
-            >
-              <Hint keys="Tab" label={t.editor.toCreateChild} flip={box.side === "left"} />
-              {node.parentId !== null && <Hint keys="Enter" label={t.editor.toCreateSibling} flip={box.side === "left"} />}
-            </div>
-          )}
         </div>
       )}
 

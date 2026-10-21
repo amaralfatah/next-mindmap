@@ -3,7 +3,7 @@
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useEffect, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 
 /**
  * Runs before first paint so the saved / system theme never flashes.
@@ -50,11 +50,12 @@ export function toggleTheme() {
   }
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
+  const t = useT();
   // The pre-paint script can run before the theme-color tags exist; sync once mounted.
   useEffect(() => syncThemeColor(document.documentElement.classList.contains("dark")), []);
   return (
-    <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={t.editor.theme} title={t.editor.theme}>
+    <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={t.editor.theme} title={t.editor.theme} className={className}>
       <SunIcon className="hidden dark:block" />
       <MoonIcon className="dark:hidden" />
     </Button>

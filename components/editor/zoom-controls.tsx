@@ -4,9 +4,10 @@ import { useReactFlow, useStore } from "@xyflow/react";
 import { LocateFixedIcon, MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { IconButton } from "@/components/icon-button";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 
 export function ZoomControls() {
+  const t = useT();
   const flow = useReactFlow();
   const zoom = useStore((s) => s.transform[2]);
   const requestFocus = useEditor((s) => s.requestFocus);
@@ -24,7 +25,7 @@ export function ZoomControls() {
   };
 
   return (
-    <div className="pointer-events-auto absolute right-3 bottom-4 z-20 hidden flex-col items-center gap-0.5 rounded-2xl border border-border/60 bg-background/80 p-1 shadow-md shadow-black/[0.03] backdrop-blur-xl md:flex dark:shadow-black/20">
+    <div className="pointer-events-auto absolute right-3 bottom-4 z-20 hidden flex-col items-center gap-0.5 rounded-2xl border bg-card p-1 shadow-md shadow-black/[0.04] md:flex dark:shadow-black/25">
       <IconButton label={t.editor.zoomIn} keys={["Ctrl", "+"]} side="left" size="icon-sm" onClick={zoomIn}>
         <PlusIcon />
       </IconButton>

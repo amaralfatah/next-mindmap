@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { getT } from "@/lib/i18n";
 import { descendantCount } from "@/lib/model";
 
 /**
@@ -10,6 +10,7 @@ import { descendantCount } from "@/lib/model";
  * so it says what went and offers Undo right there.
  */
 export function removeSelected(): void {
+  const t = getT();
   const s = useEditor.getState();
   const map = s.history?.present.map;
   const node = map?.nodes[s.selectedId];

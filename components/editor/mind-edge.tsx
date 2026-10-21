@@ -4,7 +4,7 @@ import type { Edge, EdgeProps } from "@xyflow/react";
 import { memo } from "react";
 import type { BranchColor } from "@/lib/model";
 import { useEditor } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 import { branchVar } from "./mind-node";
 
 export type MindEdgeData = {
@@ -19,6 +19,7 @@ export type MindFlowEdge = Edge<MindEdgeData, "mind">;
 
 /** Draws the path computed by the layout; xyflow's handle coordinates are ignored on purpose. */
 function MindEdgeView({ data }: EdgeProps<MindFlowEdge>) {
+  const t = useT();
   if (!data) return null;
   const relationId = data.relationId;
   return (

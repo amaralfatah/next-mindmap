@@ -1,7 +1,7 @@
 # Mind Map Design System & Brand Identity
 
 > Mind Map is a pink sticker-book notebook for thinking: blush dotted paper, berry ink, and playful, rounded shapes.
-> Audience: teenage girls. Cute and friendly, but every interaction stays functional and honest.
+> Purpose: untangling everything on your mind into one map, and keeping those maps for years (the author has maps from 2023 onward). Friendly, but every interaction stays functional and honest.
 
 ---
 
@@ -44,7 +44,7 @@
 - **Radius**: base `1rem`, cards `rounded-3xl`. Only the primary action is a full pill; secondary buttons use `rounded-xl` so controls keep a visible hierarchy.
 - **Stickers**: `.sticker` / `.sticker-hover` give a hard offset pink shadow; cards tilt slightly on hover (pointer devices only).
 - **Motion**: Level 2. Canvas transitions capped at 140ms; entrances 520ms rise. Respect `prefers-reduced-motion`. No endless animated loops.
-- **Glass**: max 1 blurred boundary (sticky nav). Floating palettes stay opaque.
+- **Glass**: max 1 blurred boundary (the home sticky nav). Editor bars, palettes, panels and dialog scrims stay opaque.
 - **Lockup**: header and screens use the Mind Map lockup: the kawung glyph (four ovals around a centre, one oval in `--primary`) + "Mind Map" in Inter SemiBold, ink `#1d1d1f` / white. The app icon (same kawung on a Sararia ink tile, `scripts/logo.mjs`) is for the favicon and home screen only.
 - **Emoji**: none in UI text. Cuteness comes from color, shape and tone of voice.
 

@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { IconButton } from "@/components/icon-button";
 import { EmoticonPicker } from "./emoticon-picker";
 import { useEditor, useMap } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
+import { PLACEHOLDER } from "@/lib/layout";
 
 function commitNote(nodeId: string, note: string) {
   const node = useEditor.getState().history?.present.map.nodes[nodeId];
@@ -18,6 +19,7 @@ function commitNote(nodeId: string, note: string) {
  * Undo/redo while the buffer is clean shows the restored note right away.
  */
 function NoteEditor({ nodeId, stored }: { nodeId: string; stored: string }) {
+  const t = useT();
   const [buffer, setBuffer] = useState<string | null>(null);
   const pending = useRef<string | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
@@ -92,6 +94,7 @@ function NoteEditor({ nodeId, stored }: { nodeId: string; stored: string }) {
 }
 
 export function NotesPanel() {
+  const t = useT();
   const map = useMap();
   const open = useEditor((s) => s.notesOpen);
   const selectedId = useEditor((s) => s.selectedId);
@@ -102,12 +105,12 @@ export function NotesPanel() {
   return (
     <aside
       aria-label={t.editor.notesTitle}
-      className="rise absolute z-30 flex flex-col border border-border/60 bg-background/90 shadow-xl shadow-black/[0.06] backdrop-blur-xl max-md:inset-x-0 max-md:bottom-0 max-md:h-[48dvh] max-md:rounded-t-3xl md:top-16 md:right-3 md:bottom-20 md:w-80 md:rounded-3xl dark:shadow-black/30"
+      className="rise absolute z-30 flex flex-col border bg-card shadow-xl shadow-black/[0.06] max-md:inset-x-0 max-md:bottom-0 max-md:h-[48dvh] max-md:rounded-t-3xl md:top-16 md:right-3 md:bottom-20 md:w-80 md:rounded-3xl dark:shadow-black/30"
     >
       <div className="flex items-start gap-2 border-b p-3 pb-2">
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">{t.editor.notesTitle}</p>
-          <p className="truncate font-display text-[15px] font-semibold">{node.text || "Untitled"}</p>
+          <p className="truncate font-display text-[15px] font-semibold">{node.text || PLACEHOLDER}</p>
         </div>
         <IconButton label={t.editor.closeNotes} keys={["Esc"]} size="icon-sm" onClick={() => setNotesOpen(false)}>
           <XIcon />

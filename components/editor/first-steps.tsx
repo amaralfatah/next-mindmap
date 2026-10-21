@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { Kbd } from "@/components/ui/kbd";
 import { useMap } from "@/lib/editor/store";
-import { t } from "@/lib/i18n";
+import { useT } from "@/components/i18n-provider";
 import { nodeCount } from "@/lib/model";
 
 const coarse = "(pointer: coarse)";
@@ -25,6 +25,7 @@ function useCoarsePointer(): boolean {
  * root, gone as soon as the first branch exists.
  */
 export function FirstSteps() {
+  const t = useT();
   const map = useMap();
   const touch = useCoarsePointer();
   if (!map || nodeCount(map) > 1) return null;
@@ -39,9 +40,9 @@ export function FirstSteps() {
           t.editor.hintTouch
         ) : (
           <>
-            Press <Kbd className="mx-0.5 bg-background/20 font-mono text-background">Tab</Kbd> to add a branch,{" "}
-            <Kbd className="mx-0.5 bg-background/20 font-mono text-background">Enter</Kbd> for the next one, and just
-            type to rename.
+            {t.editor.hintKeys.before} <Kbd className="mx-0.5 bg-background/20 font-mono text-background">Tab</Kbd>{" "}
+            {t.editor.hintKeys.child} <Kbd className="mx-0.5 bg-background/20 font-mono text-background">Enter</Kbd>{" "}
+            {t.editor.hintKeys.sibling}
           </>
         )}
       </p>
