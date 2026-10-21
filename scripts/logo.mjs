@@ -1,4 +1,5 @@
 // Generates the Mind Map app icon: app/icon.svg, app/apple-icon.png, public/icons/*.png.
+// Same artwork as sararia-logo/apps/gagas (gagasGlyph) and next-sararia's `gagas` icon.
 // Run: node scripts/logo.mjs
 import sharp from "sharp";
 import { writeFileSync } from "node:fs";
@@ -16,43 +17,35 @@ function squircle(size, n = 5, steps = 160) {
   return `M${pts.join("L")}Z`;
 }
 
-// Sararia palette (FAMILY.md section 6): neutral only, flat. Light: white tile, ink glyph.
-const INK = "#1d1d1f", PAPER = "#ffffff";
+// Sararia "ink + one accent" pattern (FAMILY.md section 6): ink tile in light and dark alike,
+// white glyph, one part in the app's --primary.
+const INK = "#1d1d1f", PAPER = "#ffffff", ACCENT = "#d6286a";
 
-// Mind map glyph on a 1024 grid: one root topic, four ideas. Mirror-symmetric.
-// bg/fg are fill values or CSS classes, so the same artwork serves PNGs and the themed SVG.
-const cy = 512, dy = 172, sw = 46, ph = 76;
-const pill = (x, y, w) => `<rect x="${x}" y="${y - ph / 2}" width="${w}" height="${ph}" rx="${ph / 2}"/>`;
-const arm = (sx, y) => `<path d="M512 ${cy} C${512 + sx * 84} ${cy}, ${512 + sx * 84} ${y}, ${512 + sx * 174} ${y}"/>`;
-const glyph = (fg, bg) => `
-  <g fill="none" ${fg.stroke} stroke-width="${sw}" stroke-linecap="round">
-    ${arm(-1, cy - dy)}${arm(-1, cy + dy)}${arm(1, cy - dy)}${arm(1, cy + dy)}
-  </g>
-  <g ${fg.fill}>
-    ${pill(190, cy - dy, 164)}${pill(190, cy + dy, 164)}${pill(670, cy - dy, 164)}${pill(670, cy + dy, 164)}
-  </g>
-  <rect x="392" y="${cy - 80}" width="240" height="160" rx="80" ${fg.root ?? `${fg.fill} ${bg.stroke}`} stroke-width="24" paint-order="stroke"/>`;
-const flat = (c) => ({ fill: `fill="${c}"`, stroke: `stroke="${c}"` });
+// Kawung: four ovals around one centre, the top-right one in the accent. The small variant
+// (favicon) has plumper ovals and a smaller centre so the gaps survive at 16 px.
+function glyph({ small = false } = {}) {
+  const k = S / 100;
+  const [d, rx, ry, r] = (small ? [25, 14, 10.4, 6.5] : [24.4, 13.7, 9.4, 7.2]).map((v) => v * k);
+  const petal = (deg, fill) => {
+    const a = (deg * Math.PI) / 180, x = f(512 + d * Math.cos(a)), y = f(512 + d * Math.sin(a));
+    return `<ellipse cx="${x}" cy="${y}" rx="${f(rx)}" ry="${f(ry)}" transform="rotate(${deg} ${x} ${y})" fill="${fill}"/>`;
+  };
+  return petal(-45, ACCENT) + petal(45, PAPER) + petal(135, PAPER) + petal(225, PAPER) + `<circle cx="512" cy="512" r="${f(r)}" fill="${PAPER}"/>`;
+}
 
-const svg = (inner, clip, style = "") =>
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}">${style}${clip ? `<clipPath id="sq"><path d="${squircle(S)}"/></clipPath><g clip-path="url(#sq)">${inner}</g>` : inner}</svg>`;
+const svg = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}">${inner}</svg>`;
 
-// Tile PNGs (apple-touch, PWA): light variant, full-bleed square, the OS applies its own mask.
-const light = `<rect width="${S}" height="${S}" fill="${PAPER}"/>${glyph({ fill: `fill="${INK}"`, stroke: `stroke="${INK}"` }, flat(PAPER))}`;
+// icon.svg (favicon): ink squircle with the small glyph. The ink tile reads on light and dark tab
+// bars, so there is no theme switch.
+writeFileSync("app/icon.svg", svg(`<path d="${squircle(S)}" fill="${INK}"/>${glyph({ small: true })}`) + "\n");
 
-// icon.svg (favicon): ink squircle with a light glyph, inverted in dark mode.
-const style = `<style>.t{fill:${INK}}.g{fill:${PAPER}}.gs{fill:none;stroke:${PAPER}}.gr{fill:${PAPER};stroke:${INK}}@media (prefers-color-scheme:dark){.t{fill:${PAPER}}.g{fill:${INK}}.gs{stroke:${INK}}.gr{fill:${INK};stroke:${PAPER}}}</style>`;
-const themed =
-  `<rect class="t" width="${S}" height="${S}"/>` +
-  glyph({ fill: 'class="g"', stroke: 'class="gs"', root: 'class="gr"' }, {});
-writeFileSync("app/icon.svg", svg(themed, true, style));
-
-const square = Buffer.from(svg(light, false));
+// Tile PNGs (apple-touch, PWA): full-bleed square, the OS applies its own mask. The glyph sits
+// inside the maskable safe zone (radius 40%), so one artwork serves both.
+const square = Buffer.from(svg(`<rect width="${S}" height="${S}" fill="${INK}"/>${glyph()}`));
 const png = (size, out) => sharp(square, { density: 300 }).resize(size, size).png().toFile(out);
 await png(180, "app/apple-icon.png");
 for (const s of [192, 512]) {
   await png(s, `public/icons/icon-${s}.png`);
   await png(s, `public/icons/maskable-${s}.png`);
 }
-await png(1024, process.env.TEMP + "/mindmap-preview.png");
 console.log("done");

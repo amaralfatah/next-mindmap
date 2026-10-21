@@ -45,6 +45,7 @@
 - **Stickers**: `.sticker` / `.sticker-hover` give a hard offset pink shadow; cards tilt slightly on hover (pointer devices only).
 - **Motion**: Level 2. Canvas transitions capped at 140ms; entrances 520ms rise. Respect `prefers-reduced-motion`. No endless animated loops.
 - **Glass**: max 1 blurred boundary (sticky nav). Floating palettes stay opaque.
+- **Lockup**: header and screens use the Mind Map lockup: the kawung glyph (four ovals around a centre, one oval in `--primary`) + "Mind Map" in Inter SemiBold, ink `#1d1d1f` / white. The app icon (same kawung on a Sararia ink tile, `scripts/logo.mjs`) is for the favicon and home screen only.
 - **Emoji**: none in UI text. Cuteness comes from color, shape and tone of voice.
 
 ---
