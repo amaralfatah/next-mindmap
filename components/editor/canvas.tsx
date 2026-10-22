@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { FloatingToolbar } from "./floating-toolbar";
 import { MindEdgeComponent, type MindFlowEdge } from "./mind-edge";
 import { MindNodeComponent, type MindFlowNode, type MindNodeData } from "./mind-node";
+import { useKeyboardInset } from "./use-keyboard-inset";
 
 const nodeTypes = { mind: MindNodeComponent };
 const edgeTypes = { mind: MindEdgeComponent };
@@ -72,6 +73,9 @@ export function Canvas() {
   const container = useRef<HTMLDivElement>(null);
   // On a phone the whole map only fits at an unreadable zoom, so open on the root at reading size.
   const [narrow] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches);
+  // On touch a swipe that starts on a node should scroll the map, so only the selected node drags.
+  const [touch] = useState(() => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
+  useKeyboardInset();
 
   const dimmedIds = useMemo(() => {
     if (!drag || !map) return null;
@@ -112,7 +116,7 @@ export function Canvas() {
               data,
               width: box.width,
               height: box.height,
-              draggable: !isRoot(box) && box.id !== editingId,
+              draggable: !isRoot(box) && box.id !== editingId && (!touch || box.id === selectedId),
               selectable: false,
               zIndex: dragging ? 10 : box.id === selectedId ? 6 : isRoot(box) ? 2 : 1,
             };
@@ -121,7 +125,7 @@ export function Canvas() {
     }
     cache.current = next;
     return list;
-  }, [map, layout, selectedId, editingId, search, drag, dimmedIds, connectFrom]);
+  }, [map, layout, selectedId, editingId, search, drag, dimmedIds, connectFrom, touch]);
   /* eslint-enable react-hooks/refs */
 
   const edges = useMemo<MindFlowEdge[]>(() => {
@@ -182,6 +186,34 @@ export function Canvas() {
       void flow.setCenter(box.x + box.width / 2, box.y + box.height / 2, { zoom, duration: 100 });
     }
   }, [focusTick, layout, selectedId, flow]);
+
+  // While typing, keep the node above the on-screen keyboard and below the top bar.
+  useEffect(() => {
+    const el = container.current;
+    const vv = window.visualViewport;
+    if (!editingId || !el || !vv) return;
+    const reveal = () => {
+      const node = el.querySelector<HTMLElement>(`.react-flow__node[data-id="${CSS.escape(editingId)}"]`);
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const top = vv.offsetTop + 72;
+      const bottom = vv.offsetTop + vv.height - 24;
+      const left = vv.offsetLeft + 16;
+      const right = vv.offsetLeft + vv.width - 16;
+      let dy = 0;
+      if (rect.bottom > bottom) dy = bottom - rect.bottom;
+      if (rect.top + dy < top) dy = top - rect.top;
+      let dx = 0;
+      if (rect.right > right) dx = right - rect.right;
+      if (rect.left + dx < left) dx = left - rect.left;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      const { x, y, zoom } = flow.getViewport();
+      void flow.setViewport({ x: x + dx, y: y + dy, zoom }, { duration: 120 });
+    };
+    reveal();
+    vv.addEventListener("resize", reveal);
+    return () => vv.removeEventListener("resize", reveal);
+  }, [editingId, layout, flow]);
 
   const onNodeClick: NodeMouseHandler<MindFlowNode> = useCallback(
     (_, node) => {
