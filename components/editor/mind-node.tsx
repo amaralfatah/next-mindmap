@@ -6,7 +6,7 @@ import { memo, useEffect, useLayoutEffect, useRef, type KeyboardEvent } from "re
 import type { DropMode } from "@/lib/editor/drop";
 import { useEditor } from "@/lib/editor/store";
 import { useT } from "@/components/i18n-provider";
-import { edgeWidth, isRoot, metrics, PLACEHOLDER, roleOf, type Box } from "@/lib/layout";
+import { edgeWidth, metrics, PLACEHOLDER, roleOf, type Box } from "@/lib/layout";
 import { isBranchColor, type MindNode as Model } from "@/lib/model";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ export type MindNodeData = {
   dimmed: boolean;
   /** This node is where a pending relation starts. */
   connecting: boolean;
-  /** This node is being dragged, so its incoming edge (and the underline drawn with it) is hidden. */
+  /** This node is being dragged, so its incoming edge is hidden. */
   dragging: boolean;
 };
 
@@ -149,16 +149,17 @@ function AddButton({ label, onClick, className }: { label: string; onClick: () =
 
 function MindNodeView({ data }: NodeProps<MindFlowNode>) {
   const t = useT();
-  const { box, node, selected, editing, match, drop, dimmed, connecting, dragging } = data;
+  const { box, node, selected, editing, match, drop, dimmed, connecting } = data;
   const m = metrics[roleOf(box.depth)];
   const color = branchVar(box.color);
   const toggleCollapse = useEditor((s) => s.toggleCollapse);
   const hasChildren = node.childIds.length > 0 && node.parentId !== null;
-  const isBottomAnchored = !box.boxed;
 
   const content = (
-    <div className="flex items-start" style={{ gap: 4 }}>
-      <div className="min-w-0 flex-1">{editing ? <Editor box={box} node={node} /> : <Text box={box} node={node} />}</div>
+    // Centered so the room measured in for the caret (and a short node's minimum width) splits
+    // evenly on both sides instead of piling up on the right. Typing needs the full width.
+    <div className={cn("flex items-start", !editing && "justify-center")} style={{ gap: 4 }}>
+      <div className={cn("min-w-0", editing && "flex-1")}>{editing ? <Editor box={box} node={node} /> : <Text box={box} node={node} />}</div>
       {node.link && !editing && (
         <a
           href={node.link}
@@ -221,18 +222,6 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
         }}
       >
         {content}
-        {/* Other nodes get their underline from the incoming edge path, so the two are one stroke. */}
-        {!box.boxed && (isRoot(box) || dragging) && (
-          <span
-            aria-hidden
-            className={cn(
-              "absolute inset-x-0",
-              // The end facing the toggle butts against the stem; a round cap there leaves a notch.
-              !hasChildren ? "rounded-full" : box.side === "left" ? "rounded-r-full" : "rounded-l-full",
-            )}
-            style={{ background: "var(--branch)", height: edgeWidth(box.depth), bottom: -edgeWidth(box.depth) / 2 }}
-          />
-        )}
       </div>
 
       {(drop === "before" || drop === "after") && (
@@ -245,7 +234,8 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
       {selected && !drop && !dimmed && (
         <span
           aria-hidden
-          className="pointer-events-none absolute -inset-1.5 z-10 rounded-[14px] border-2 border-ink shadow-[0_0_0_1px_var(--background)]"
+          // Hugs the node so its edges meet the outline and the toggle keeps clear of it.
+          className="pointer-events-none absolute -inset-0.5 z-10 rounded-[10px] border-2 border-ink shadow-[0_0_0_1px_var(--background)]"
         />
       )}
 
@@ -275,13 +265,9 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
             className={cn(
               "pointer-events-none absolute w-[14px]",
               box.side === "left" ? "right-full" : "left-full",
-              isBottomAnchored ? "top-full" : "top-1/2 -translate-y-1/2",
+              "top-1/2 -translate-y-1/2",
             )}
-            style={{
-              background: "var(--branch)",
-              height: edgeWidth(box.depth),
-              ...(isBottomAnchored ? { marginTop: -edgeWidth(box.depth) / 2 } : null),
-            }}
+            style={{ background: "var(--branch)", height: edgeWidth(box.depth) }}
           />
           <button
             type="button"
@@ -308,7 +294,7 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
               box.side === "left"
                 ? "right-[calc(100%+14px)] translate-x-1/2"
                 : "left-[calc(100%+14px)] -translate-x-1/2",
-              isBottomAnchored ? "top-full -translate-y-1/2" : "top-1/2 -translate-y-1/2",
+              "top-1/2 -translate-y-1/2",
             )}
             style={{
               borderColor: "var(--branch)",

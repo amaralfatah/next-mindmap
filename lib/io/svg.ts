@@ -32,7 +32,7 @@ function textBlock(box: Box, map: MindMap, fill: string): string {
   const weight = node.bold || isRoot(box) ? 700 : 400;
   const style = node.italic ? ' font-style="italic"' : "";
   const lines = node.text ? box.lines : [PLACEHOLDER];
-  const x = box.x + m.padX + 1;
+  const x = box.x + m.padX + 3;
   const tspans = lines
     .map((line, i) => {
       const y = box.y + m.padY + i * m.lineHeight + m.lineHeight / 2 + m.fontSize * 0.35;
@@ -74,8 +74,6 @@ export function exportSvg(map: MindMap, layout: Layout, palette: ExportPalette):
   for (const box of Object.values(layout.boxes)) {
     const node = map.nodes[box.id];
     const color = branchHex(palette, box.color);
-    const y = box.y + box.height;
-    const strokeColor = isRoot(box) ? palette.foreground : color;
     if (box.boxed && (node.fill || node.border)) {
       const bgFill = resolveSvgColor(node.fill) ?? "none";
       const borderStroke = resolveSvgColor(node.border) ?? "none";
@@ -86,15 +84,12 @@ export function exportSvg(map: MindMap, layout: Layout, palette: ExportPalette):
         textBlock(box, map, textColor),
       );
     } else {
-      parts.push(
-        `<path d="M${box.x},${y}H${box.x + box.width}" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round"/>`,
-        textBlock(box, map, palette.foreground),
-      );
+      parts.push(textBlock(box, map, palette.foreground));
     }
     if (node.note) parts.push(noteMarker(box, palette.foreground));
     if (box.hidden > 0) {
       const cx = box.side === "left" ? box.x - 14 : box.x + box.width + 14;
-      const cy = box.y + box.height;
+      const cy = box.y + box.height / 2;
       parts.push(
         `<circle cx="${cx}" cy="${cy}" r="10" fill="${palette.background}" stroke="${color}" stroke-width="1.5"/>`,
         `<text x="${cx}" y="${cy + 3.5}" font-size="10" font-weight="700" text-anchor="middle" fill="${palette.foreground}">${box.hidden > 99 ? "99+" : box.hidden}</text>`,

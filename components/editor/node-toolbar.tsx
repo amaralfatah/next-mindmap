@@ -47,7 +47,9 @@ function normalizeLink(raw: string): string | undefined {
   }
 }
 
-function LinkEditor({ node }: { node: MindNode }) {
+type PickerProps = { side?: "top" | "bottom"; className?: string };
+
+export function LinkEditor({ node, side = "top", className = "max-sm:hidden" }: { node: MindNode } & PickerProps) {
   const t = useT();
   const patch = useEditor((s) => s.patch);
   const [open, setOpen] = useState(false);
@@ -77,7 +79,7 @@ function LinkEditor({ node }: { node: MindNode }) {
                   size="icon"
                   aria-label={t.editor.link}
                   aria-pressed={Boolean(node.link)}
-                  className="aria-pressed:bg-accent max-sm:hidden"
+                  className={cn("aria-pressed:bg-accent", className)}
                 />
               }
             />
@@ -85,9 +87,9 @@ function LinkEditor({ node }: { node: MindNode }) {
         >
           <LinkIcon />
         </TooltipTrigger>
-        <TooltipContent side="top">{t.editor.link}</TooltipContent>
+        <TooltipContent side={side}>{t.editor.link}</TooltipContent>
       </Tooltip>
-      <PopoverContent side="top" className="w-80 p-2">
+      <PopoverContent side={side} className="w-80 p-2">
         <form onSubmit={save} className="flex items-center gap-1.5">
           <input
             autoFocus
@@ -132,7 +134,7 @@ function LinkEditor({ node }: { node: MindNode }) {
   );
 }
 
-function ColorPicker({ nodeId }: { nodeId: string }) {
+export function ColorPicker({ nodeId, side = "top", className = touch }: { nodeId: string } & PickerProps) {
   const t = useT();
   const map = useMap();
   const patch = useEditor((s) => s.patch);
@@ -147,7 +149,7 @@ function ColorPicker({ nodeId }: { nodeId: string }) {
         <TooltipTrigger
           render={
             <PopoverTrigger
-              render={<Button variant="ghost" size="icon" aria-label={t.editor.color} disabled={node.parentId === null} className={touch} />}
+              render={<Button variant="ghost" size="icon" aria-label={t.editor.color} disabled={node.parentId === null} className={className} />}
             />
           }
         >
@@ -160,9 +162,9 @@ function ColorPicker({ nodeId }: { nodeId: string }) {
             />
           </span>
         </TooltipTrigger>
-        <TooltipContent side="top">{t.editor.color}</TooltipContent>
+        <TooltipContent side={side}>{t.editor.color}</TooltipContent>
       </Tooltip>
-      <PopoverContent side="top" className="w-auto p-2">
+      <PopoverContent side={side} className="w-auto p-2">
         <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label={t.editor.color}>
           {!isMain && (
             <button
@@ -201,7 +203,7 @@ function ColorPicker({ nodeId }: { nodeId: string }) {
   );
 }
 
-/** Actions for the selected node. Primary input on phones; a discoverable cheat sheet on desktop. */
+/** Actions for the selected node on phones, where a bar under the thumb beats one beside the node. */
 export function NodeToolbar() {
   const t = useT();
   const map = useMap();
@@ -214,7 +216,7 @@ export function NodeToolbar() {
   const hasChildren = node.childIds.length > 0;
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-4">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:hidden">
       <div
         role="toolbar"
         aria-label={t.editor.nodeActions}

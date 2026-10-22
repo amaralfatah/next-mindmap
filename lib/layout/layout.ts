@@ -16,7 +16,7 @@ export type Box = {
   lines: string[];
   /** Number of hidden descendants when collapsed, else 0. */
   hidden: number;
-  /** A highlighted leaf: drawn as a filled bubble instead of text on an underline. */
+  /** A highlighted node: drawn as a filled or outlined bubble instead of plain text. */
   boxed?: true;
 };
 
@@ -187,24 +187,42 @@ function countDescendants(map: MindMap, id: string): number {
   return count;
 }
 
-/**
- * Where an edge leaves a parent and enters a child. Boxed nodes (root, main branches) connect
- * at their side's middle; leaf nodes sit on an underline, so edges meet the underline's end.
- */
+/** Where an edge leaves a parent and enters a child: the middle of the facing side. */
 function anchor(box: Box, side: Side, role: "out" | "in"): { x: number; y: number } {
   const far = (side === "right") === (role === "out");
-  const x = far ? box.x + box.width : box.x;
-  if (!box.boxed) return { x, y: box.y + box.height };
-  return { x, y: box.y + box.height / 2 };
+  return { x: far ? box.x + box.width : box.x, y: box.y + box.height / 2 };
 }
 
-/** A leaf sits on an underline; drawing it as the tail of its edge makes one unbroken stroke. */
-function underline(target: Box, side: Side): string {
-  if (target.boxed) return "";
-  return ` H${r(side === "right" ? target.x + target.width : target.x)}`;
+/** Clearance between the root's text and where its edges begin. */
+const ROOT_GAP = 8;
+
+/**
+ * Main branches fan out from all around the root instead of meeting at one point: each edge
+ * starts where the line from the root's center toward its child crosses the root's (padded)
+ * box, leaves in that direction, and bends to arrive horizontally.
+ */
+function rootEdgePath(source: Box, target: Box, side: Side): string {
+  const t = anchor(target, side, "in");
+  const cx = source.x + source.width / 2;
+  const cy = source.y + source.height / 2;
+  const gap = source.boxed ? 2 : ROOT_GAP;
+  const hw = source.width / 2 + gap;
+  const hh = source.height / 2 + gap;
+  const dx = t.x - cx;
+  const dy = t.y - cy;
+  const scale = Math.min(dx ? hw / Math.abs(dx) : Infinity, dy ? hh / Math.abs(dy) : Infinity);
+  const sx = cx + dx * scale;
+  const sy = cy + dy * scale;
+  const reach = Math.hypot(t.x - sx, t.y - sy) * 0.35;
+  const len = Math.hypot(dx, dy) || 1;
+  const c1x = sx + (dx / len) * reach;
+  const c1y = sy + (dy / len) * reach;
+  const c2x = t.x - (t.x - sx) * 0.5;
+  return `M${r(sx)},${r(sy)} C${r(c1x)},${r(c1y)} ${r(c2x)},${r(t.y)} ${r(t.x)},${r(t.y)}`;
 }
 
 export function edgePath(source: Box, target: Box, side: Side, sourceStem = 0): string {
+  if (source.depth === 0) return rootEdgePath(source, target, side);
   const s = anchor(source, side, "out");
   const t = anchor(target, side, "in");
   const sx = side === "right" ? s.x + sourceStem : s.x - sourceStem;
@@ -212,10 +230,10 @@ export function edgePath(source: Box, target: Box, side: Side, sourceStem = 0): 
     // Leaves the toggle vertically and arrives horizontally (a quarter ellipse), so siblings
     // share one trunk at the toggle and each bends into its own node.
     const k = 0.5523;
-    return `M${r(sx)},${r(s.y)} C${r(sx)},${r(s.y + (t.y - s.y) * k)} ${r(sx + (t.x - sx) * (1 - k))},${r(t.y)} ${r(t.x)},${r(t.y)}${underline(target, side)}`;
+    return `M${r(sx)},${r(s.y)} C${r(sx)},${r(s.y + (t.y - s.y) * k)} ${r(sx + (t.x - sx) * (1 - k))},${r(t.y)} ${r(t.x)},${r(t.y)}`;
   }
   const dx = (t.x - sx) * 0.5;
-  return `M${r(sx)},${r(s.y)} C${r(sx + dx)},${r(s.y)} ${r(t.x - dx)},${r(t.y)} ${r(t.x)},${r(t.y)}${underline(target, side)}`;
+  return `M${r(sx)},${r(s.y)} C${r(sx + dx)},${r(s.y)} ${r(t.x - dx)},${r(t.y)} ${r(t.x)},${r(t.y)}`;
 }
 
 /** A smooth curve between the facing sides of two boxes, for relations that cross the tree. */

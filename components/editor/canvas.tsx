@@ -17,6 +17,7 @@ import { useT } from "@/components/i18n-provider";
 import { isRoot, relationPath } from "@/lib/layout";
 import { subtreeIds } from "@/lib/model";
 import { cn } from "@/lib/utils";
+import { FloatingToolbar } from "./floating-toolbar";
 import { MindEdgeComponent, type MindFlowEdge } from "./mind-edge";
 import { MindNodeComponent, type MindFlowNode, type MindNodeData } from "./mind-node";
 
@@ -318,6 +319,7 @@ export function Canvas() {
         attributionPosition="bottom-left"
       >
         <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="var(--dot)" />
+        <FloatingToolbar dragging={drag !== null} />
       </ReactFlow>
     </div>
   );

@@ -25,7 +25,7 @@ function MapThumbView({ map }: { map: MindMap }) {
       {Object.values(layout.boxes).map((b) => (
         <path
           key={b.id}
-          d={`M${b.x},${b.y + b.height}H${b.x + b.width}`}
+          d={`M${b.x + 6},${b.y + b.height / 2}H${b.x + b.width - 6}`}
           stroke={isRoot(b) ? "var(--foreground)" : color(b.color)}
           strokeWidth={4.5}
           strokeLinecap="round"

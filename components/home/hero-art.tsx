@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * A hand-drawn sample map that draws itself in: the product, not a stock illustration.
- * Shapes follow the editor's own styles (ink root, tinted main branches, underlined leaves).
+ * Shapes follow the editor's own styles (ink root, tinted main branches, plain-text leaves).
  */
 /** Fixed geometry; the words come from the active language. */
 const branchShapes = [
@@ -25,7 +25,7 @@ const leafShapes = [
   { from: [436, 248], to: [474, 262], color: "ochre" },
 ];
 
-/** Rough width of a leaf label at 14.5px, so the underline ends with the word. */
+/** Rough width of a leaf label at 14.5px, so the caret lands after the word. */
 const leafWidth = (text: string) => Math.min(104, Math.round(text.length * 7.3 + 12));
 
 /**
@@ -57,7 +57,7 @@ export function HeroArt({ crop = false, className }: { crop?: boolean; className
           return (
             <path
               key={l.text}
-              d={`M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2} H${x2 + l.w}`}
+              d={`M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`}
               stroke={`var(--branch-${l.color})`}
               strokeWidth="2"
               pathLength={1}
@@ -87,7 +87,7 @@ export function HeroArt({ crop = false, className }: { crop?: boolean; className
       ))}
 
       {leaves.map((l, i) => (
-        <text key={l.text} x={l.to[0] + 4} y={l.to[1] - 6} className="pop fill-foreground font-sans text-[14.5px] font-medium" style={{ animationDelay: `${900 + i * 80}ms` }}>
+        <text key={l.text} x={l.to[0] + 4} y={l.to[1] + 5} className="pop fill-foreground font-sans text-[14.5px] font-medium" style={{ animationDelay: `${900 + i * 80}ms` }}>
           {l.text}
         </text>
       ))}
@@ -101,7 +101,7 @@ export function HeroArt({ crop = false, className }: { crop?: boolean; className
 
       {/* The caret of a node being typed: the app is keyboard-first. */}
       <g className="pop" style={{ animationDelay: "1300ms" }}>
-        <rect x={last.to[0] + last.w + 2} y="244" width="2" height="18" className="caret fill-ink" />
+        <rect x={last.to[0] + last.w + 2} y={last.to[1] - 9} width="2" height="18" className="caret fill-ink" />
       </g>
     </svg>
   );

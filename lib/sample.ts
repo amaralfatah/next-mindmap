@@ -72,14 +72,14 @@ const SAMPLES: Record<Locale, { markdown: string; title: string }> = {
   en: { markdown: SAMPLE_EN, title: "On my mind" },
 };
 
-/** The no-sign-in demo: growing up and carrying two generations at once (the sandwich generation). */
+/** The no-sign-in demo: the things that pile up once you start standing on your own. */
 const DEMO_ID = `# Beranjak dewasa
 
-## Orang tua
-- **Biaya berobat ayah**
-  > Cek dulu mana yang ditanggung BPJS.
-- Kirim uang bulanan
-- Atap rumah bocor
+## Tempat tinggal
+- **Cari kontrakan dekat kantor**
+  > Bandingkan harga sewa dengan ongkos ke kantor.
+- Bayar sewa tiap bulan
+- Perabot yang masih kurang
 
 ## Adik
 - Uang kuliah semester depan
@@ -102,11 +102,11 @@ const DEMO_ID = `# Beranjak dewasa
 
 const DEMO_EN = `# Growing up
 
-## Parents
-- **Dad's medical bills**
-  > Check what insurance covers first.
-- Money home every month
-- The leaking roof
+## A place to live
+- **Find a rental near work**
+  > Weigh the rent against the commute.
+- Monthly rent
+- Furniture I still need
 
 ## Younger sibling
 - Next semester's tuition

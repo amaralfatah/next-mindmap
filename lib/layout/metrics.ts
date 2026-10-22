@@ -44,5 +44,5 @@ export function setPlaceholder(text: string): void {
   PLACEHOLDER = text;
 }
 
-/** Stroke width of the edge into a node at this depth; a leaf's underline uses the same value. */
+/** Stroke width of the edge into a node at this depth. */
 export const edgeWidth = (depth: number): number => (depth === 1 ? 3 : depth === 2 ? 2 : 1.5);
