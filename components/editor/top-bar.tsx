@@ -160,7 +160,7 @@ export function TopBar() {
           <KeyboardIcon />
         </IconButton>
         <ThemeToggle className="max-sm:hidden" />
-        <AuthButton />
+        <AuthButton compact />
       </div>
     </header>
   );

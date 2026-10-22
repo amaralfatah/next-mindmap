@@ -54,7 +54,7 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
  * Auth button and modal dialog for user authentication with Neon Auth. `cta` renders the
  * signed-out trigger as the page's primary action, for screens that need an account to continue.
  */
-export function AuthButton({ className, cta }: { className?: string; cta?: string }) {
+export function AuthButton({ className, cta, compact }: { className?: string; cta?: string; compact?: boolean }) {
   const t = useT();
   const { data: session, isPending } = useSession();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -230,7 +230,7 @@ export function AuthButton({ className, cta }: { className?: string; cta?: strin
           className={`shrink-0 gap-1.5 text-xs font-medium ${className ?? ""}`}
         >
           <LogInIcon className="size-3.5" />
-          <span>{t.auth.signIn}</span>
+          <span className={compact ? "max-sm:sr-only" : undefined}>{t.auth.signIn}</span>
         </Button>
       )}
 

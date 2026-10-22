@@ -76,7 +76,7 @@ const id = {
   editor: {
     canvasLabel: "Kanvas peta pikiran",
     untitled: "Tanpa judul",
-    defaultTitle: "Ide utama",
+    defaultTitle: "Isi kepalaku",
     back: "Semua map",
     saved: "Tersimpan",
     saving: "Menyimpan…",
@@ -305,7 +305,7 @@ const en: Dict = {
   editor: {
     canvasLabel: "Mind map canvas",
     untitled: "Untitled",
-    defaultTitle: "Central idea",
+    defaultTitle: "On my mind",
     back: "All maps",
     saved: "Saved",
     saving: "Saving…",

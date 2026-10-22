@@ -70,6 +70,8 @@ export function Canvas() {
   const dropRef = useRef<Drop | null>(null);
   const cache = useRef(new Map<string, MindFlowNode>());
   const container = useRef<HTMLDivElement>(null);
+  // On a phone the whole map only fits at an unreadable zoom, so open on the root at reading size.
+  const [narrow] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches);
 
   const dimmedIds = useMemo(() => {
     if (!drag || !map) return null;
@@ -298,7 +300,9 @@ export function Canvas() {
           s.deselect();
         }}
         fitView
-        fitViewOptions={{ maxZoom: 1, minZoom: 0.55, padding: 0.25 }}
+        fitViewOptions={
+          narrow ? { nodes: [{ id: map.rootId }], minZoom: 0.9, maxZoom: 0.9 } : { maxZoom: 1, minZoom: 0.55, padding: 0.25 }
+        }
         minZoom={0.1}
         maxZoom={2.5}
         nodesConnectable={false}
