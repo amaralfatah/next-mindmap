@@ -7,8 +7,11 @@ import type { DropMode } from "@/lib/editor/drop";
 import { useEditor } from "@/lib/editor/store";
 import { useT } from "@/components/i18n-provider";
 import { edgeWidth, metrics, PLACEHOLDER, roleOf, type Box } from "@/lib/layout";
-import { isBranchColor, type MindNode as Model } from "@/lib/model";
+import type { MindNode as Model } from "@/lib/model";
 import { cn } from "@/lib/utils";
+import { branchVar, getContrastTextColor, resolveNodeColor } from "./node-color";
+
+export { branchVar, getContrastTextColor, resolveNodeColor };
 
 export type MindNodeData = {
   box: Box;
@@ -25,33 +28,6 @@ export type MindNodeData = {
 };
 
 export type MindFlowNode = Node<MindNodeData, "mind">;
-
-export function branchVar(color: string | null): string {
-  return color ? `var(--branch-${color})` : "var(--foreground)";
-}
-
-export function resolveNodeColor(color: string | undefined): string | undefined {
-  if (!color) return undefined;
-  if (isBranchColor(color)) return `var(--branch-${color})`;
-  return color;
-}
-
-export function getContrastTextColor(fillColor: string | undefined): string | undefined {
-  if (!fillColor) return undefined;
-  if (isBranchColor(fillColor)) return "#ffffff";
-  if (fillColor.startsWith("#")) {
-    let hex = fillColor.slice(1);
-    if (hex.length === 3) hex = hex.split("").map((x) => x + x).join("");
-    const r = parseInt(hex.slice(0, 2), 16);
-    const g = parseInt(hex.slice(2, 4), 16);
-    const b = parseInt(hex.slice(4, 6), 16);
-    if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
-      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-      return yiq >= 170 ? "#1e293b" : "#ffffff";
-    }
-  }
-  return "#ffffff";
-}
 
 function Editor({ box, node }: { box: Box; node: Model }) {
   const t = useT();

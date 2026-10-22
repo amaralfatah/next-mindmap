@@ -5,7 +5,7 @@ import { memo } from "react";
 import type { BranchColor } from "@/lib/model";
 import { useEditor } from "@/lib/editor/store";
 import { useT } from "@/components/i18n-provider";
-import { branchVar } from "./mind-node";
+import { branchVar } from "./node-color";
 
 export type MindEdgeData = {
   path: string;
