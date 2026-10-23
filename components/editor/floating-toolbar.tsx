@@ -71,7 +71,7 @@ export function FloatingToolbar({ dragging }: { dragging: boolean }) {
         key={selectedId}
         role="toolbar"
         aria-label={t.editor.nodeActions}
-        className="nodrag nopan flex items-center gap-0.5 rounded-2xl border bg-card p-1 shadow-lg shadow-black/[0.06] animate-in fade-in zoom-in-95 duration-120 ease-out motion-reduce:animate-none dark:shadow-black/30"
+        className="nodrag nopan flex items-center gap-0.5 glass rounded-2xl border p-1 animate-in fade-in zoom-in-95 duration-120 ease-out motion-reduce:animate-none"
         onPointerDown={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >

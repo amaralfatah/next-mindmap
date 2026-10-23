@@ -110,7 +110,7 @@ export function NotesPanel() {
       <div className="flex items-start gap-2 border-b p-3 pb-2">
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">{t.editor.notesTitle}</p>
-          <p className="truncate font-display text-[15px] font-semibold">{node.text || PLACEHOLDER}</p>
+          <p className="truncate text-[15px] font-semibold">{node.text || PLACEHOLDER}</p>
         </div>
         <IconButton label={t.editor.closeNotes} keys={["Esc"]} size="icon-sm" onClick={() => setNotesOpen(false)}>
           <XIcon />

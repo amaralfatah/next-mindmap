@@ -8,11 +8,10 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
-  --font-mono: var(--font-mono-face);
+  --font-mono: ui-monospace, "SF Mono", var(--font-mono-face), monospace;
   --font-display: var(--font-display-face);
   --font-heading: var(--font-display-face);
   --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
   --color-paper-2: var(--paper-2);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -38,83 +37,101 @@
 }
 
 /*
- * Mind Map is a pink sticker-book notebook: blush dotted paper, berry ink for text, one
- * bubblegum pink for the app's own voice, and candy pigments for branches. --ink is the
- * pink that is safe for text on paper.
+ * Mind Map follows Apple's Human Interface Guidelines: system neutrals, the system face,
+ * one tint (system pink) for the app's own voice, and the system palette for branches.
+ * --ink is the pink that stays legible as text on --background.
  */
 :root {
-  --background: oklch(0.982 0.014 350);
-  --paper-2: oklch(0.96 0.03 350);
-  --foreground: oklch(0.27 0.06 350);
-  --card: oklch(0.997 0.005 350);
-  --card-foreground: oklch(0.27 0.06 350);
-  --popover: oklch(0.997 0.005 350);
-  --popover-foreground: oklch(0.27 0.06 350);
-  --primary: oklch(0.58 0.21 5);
-  --primary-foreground: oklch(0.99 0.008 350);
-  --secondary: oklch(0.95 0.035 350);
-  --secondary-foreground: oklch(0.27 0.06 350);
-  --muted: oklch(0.955 0.03 350);
-  --muted-foreground: oklch(0.48 0.06 350);
-  --accent: oklch(0.92 0.06 350);
-  --accent-foreground: oklch(0.27 0.06 350);
-  --destructive: oklch(0.52 0.21 25);
-  --border: oklch(0.9 0.045 350);
-  --input: oklch(0.9 0.045 350);
-  --ring: oklch(0.66 0.18 5);
-  --ink: oklch(0.54 0.2 5);
-  --ink-soft: oklch(0.82 0.1 5);
-  --dot: oklch(0.86 0.07 350);
-  --radius: 1rem;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-display-face: var(--font-body);
+
+  --background: #f5f5f7;
+  --paper-2: #fbfbfd;
+  --foreground: #1d1d1f;
+  --card: #ffffff;
+  --card-foreground: #1d1d1f;
+  --popover: #ffffff;
+  --popover-foreground: #1d1d1f;
+  --primary: #e8194b;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(120 120 128 / 0.12);
+  --secondary-foreground: #1d1d1f;
+  --muted: rgb(120 120 128 / 0.1);
+  --muted-foreground: #6e6e73;
+  --accent: rgb(255 45 85 / 0.12);
+  --accent-foreground: #1d1d1f;
+  --destructive: #d70015;
+  --border: rgb(0 0 0 / 0.1);
+  --input: rgb(0 0 0 / 0.12);
+  --ring: #ff2d55;
+  --ink: #d30f45;
+  --dot: rgb(60 60 67 / 0.18);
+  --radius: 0.75rem;
+
+  /* Materials: translucent chrome that content scrolls under. */
+  --material: rgb(255 255 255 / 0.72);
+  --material-edge: rgb(0 0 0 / 0.08);
+  --shadow-float: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 2px 6px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.08);
+  --shadow-card: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 14px rgb(0 0 0 / 0.05);
+  --shadow-lift: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 4px 10px rgb(0 0 0 / 0.06), 0 16px 36px rgb(0 0 0 / 0.1);
+
+  /* Critically damped spring (no overshoot) and a soft one for momentum, as CSS easings. */
+  --ease-spring: linear(0, 0.157, 0.438, 0.66, 0.806, 0.894, 0.944, 0.971, 0.986, 0.993, 0.997, 1);
+  --ease-out-apple: cubic-bezier(0.25, 1, 0.5, 1);
 
   /*
-   * Branch pigments. Edges and accents only; node text stays --foreground.
-   * The slot names are stored keys in saved maps, so they stay; only the hues are candy.
-   * teal = hot pink, clay = coral, ochre = butter, moss = mint, indigo = lavender,
-   * plum = orchid, rose = bubblegum, slate = sky.
+   * Branch pigments: Apple system colors. Edges and accents only; node text stays --foreground.
+   * The slot names are stored keys in saved maps, so they stay; only the hues change.
+   * teal = pink, clay = orange, ochre = yellow, moss = green, indigo = indigo,
+   * plum = purple, rose = red, slate = blue.
    */
-  --branch-teal: oklch(0.62 0.21 5);
-  --branch-clay: oklch(0.67 0.17 30);
-  --branch-ochre: oklch(0.8 0.14 85);
-  --branch-moss: oklch(0.72 0.13 165);
-  --branch-indigo: oklch(0.62 0.16 290);
-  --branch-plum: oklch(0.6 0.21 330);
-  --branch-rose: oklch(0.74 0.14 350);
-  --branch-slate: oklch(0.7 0.11 230);
+  --branch-teal: #ff2d55;
+  --branch-clay: #ff9500;
+  --branch-ochre: #f2b600;
+  --branch-moss: #34c759;
+  --branch-indigo: #5856d6;
+  --branch-plum: #af52de;
+  --branch-rose: #ff3b30;
+  --branch-slate: #007aff;
 }
 
 .dark {
-  --background: oklch(0.2 0.04 340);
-  --paper-2: oklch(0.235 0.045 340);
-  --foreground: oklch(0.95 0.02 350);
-  --card: oklch(0.25 0.045 340);
-  --card-foreground: oklch(0.95 0.02 350);
-  --popover: oklch(0.265 0.045 340);
-  --popover-foreground: oklch(0.95 0.02 350);
-  --primary: oklch(0.76 0.16 355);
-  --primary-foreground: oklch(0.2 0.04 340);
-  --secondary: oklch(0.3 0.05 340);
-  --secondary-foreground: oklch(0.95 0.02 350);
-  --muted: oklch(0.3 0.05 340);
-  --muted-foreground: oklch(0.76 0.05 350);
-  --accent: oklch(0.34 0.08 345);
-  --accent-foreground: oklch(0.95 0.02 350);
-  --destructive: oklch(0.72 0.18 22);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.74 0.15 355);
-  --ink: oklch(0.82 0.13 355);
-  --ink-soft: oklch(0.5 0.1 350);
-  --dot: oklch(0.35 0.05 340);
+  --background: #000000;
+  --paper-2: #1c1c1e;
+  --foreground: #f5f5f7;
+  --card: #1c1c1e;
+  --card-foreground: #f5f5f7;
+  --popover: #2c2c2e;
+  --popover-foreground: #f5f5f7;
+  --primary: #ff375f;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(120 120 128 / 0.24);
+  --secondary-foreground: #f5f5f7;
+  --muted: rgb(120 120 128 / 0.2);
+  --muted-foreground: #98989d;
+  --accent: rgb(255 55 95 / 0.22);
+  --accent-foreground: #f5f5f7;
+  --destructive: #ff453a;
+  --border: rgb(255 255 255 / 0.12);
+  --input: rgb(255 255 255 / 0.16);
+  --ring: #ff375f;
+  --ink: #ff6482;
+  --dot: rgb(235 235 245 / 0.16);
 
-  --branch-teal: oklch(0.75 0.17 355);
-  --branch-clay: oklch(0.77 0.14 35);
-  --branch-ochre: oklch(0.86 0.12 90);
-  --branch-moss: oklch(0.8 0.12 165);
-  --branch-indigo: oklch(0.76 0.13 290);
-  --branch-plum: oklch(0.74 0.16 330);
-  --branch-rose: oklch(0.8 0.12 350);
-  --branch-slate: oklch(0.78 0.1 230);
+  --material: rgb(30 30 32 / 0.72);
+  --material-edge: rgb(255 255 255 / 0.1);
+  --shadow-float: 0 0 0 0.5px rgb(255 255 255 / 0.06), 0 8px 24px rgb(0 0 0 / 0.5);
+  --shadow-card: 0 0 0 0.5px rgb(255 255 255 / 0.06), 0 4px 14px rgb(0 0 0 / 0.4);
+  --shadow-lift: 0 0 0 0.5px rgb(255 255 255 / 0.08), 0 16px 36px rgb(0 0 0 / 0.6);
+
+  --branch-teal: #ff375f;
+  --branch-clay: #ff9f0a;
+  --branch-ochre: #ffd60a;
+  --branch-moss: #30d158;
+  --branch-indigo: #5e5ce6;
+  --branch-plum: #bf5af2;
+  --branch-rose: #ff453a;
+  --branch-slate: #0a84ff;
 }
 
 @layer base {
@@ -139,8 +156,8 @@
   }
   [data-slot="button"]:not(:disabled) {
     transition-property: color, background-color, border-color, box-shadow, transform;
-    transition-duration: 140ms;
-    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    transition-duration: 160ms;
+    transition-timing-function: var(--ease-out-apple);
   }
   [data-slot="button"]:not(:disabled):active {
     transform: scale(0.97);
@@ -155,6 +172,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "kern";
+    text-rendering: optimizeLegibility;
+  }
+  /* Size-specific tracking: large type tightens, small type stays at the face's own spacing. */
+  h1,
+  h2 {
+    letter-spacing: -0.022em;
+  }
+  h3 {
+    letter-spacing: -0.012em;
   }
   ::selection {
     background: color-mix(in oklch, var(--ink) 25%, transparent);
@@ -166,37 +193,46 @@
 }
 
 @layer components {
-  /* Notebook dot grid. Used on the home page; the canvas draws its own via xyflow. */
+  /* Subtle dot grid, like Freeform's canvas. The editor canvas draws its own via xyflow. */
   .dot-paper {
     background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
     background-size: 22px 22px;
   }
 
   .rise {
-    animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: rise 560ms var(--ease-spring) both;
   }
 
-  /* Sticker: a chunky offset shadow in soft pink, like a die-cut sticker on paper. */
-  .sticker {
-    box-shadow: 4px 4px 0 var(--ink-soft);
+  /* Card: a white platter with a hairline edge and a soft, ambient shadow. */
+  .card-surface {
+    background: var(--card);
+    box-shadow: var(--shadow-card);
   }
-  .sticker-hover {
-    transition: translate 160ms cubic-bezier(0.23, 1, 0.32, 1), rotate 160ms cubic-bezier(0.23, 1, 0.32, 1),
-      box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  .card-lift {
+    transition: translate 320ms var(--ease-spring), scale 320ms var(--ease-spring),
+      box-shadow 320ms var(--ease-spring);
   }
   @media (hover: hover) and (pointer: fine) {
-    .sticker-hover:hover {
+    .card-lift:hover {
       translate: 0 -2px;
-      rotate: -0.8deg;
-      box-shadow: 5px 6px 0 var(--ink-soft);
+      box-shadow: var(--shadow-lift);
     }
   }
-  /* Press lands the sticker flat on the paper the instant the pointer goes down. */
-  .sticker-hover:active {
-    translate: 2px 2px;
-    rotate: 0deg;
-    box-shadow: 1px 1px 0 var(--ink-soft);
-    transition-duration: 70ms;
+  /* Feedback lands on press, instantly. */
+  .card-lift:active {
+    translate: 0 0;
+    scale: 0.98;
+    box-shadow: var(--shadow-card);
+    transition-duration: 90ms;
+  }
+
+  /* Glass: floating chrome (bars, palettes) as a translucent material over the content. */
+  .glass {
+    background: var(--material);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-color: var(--material-edge);
+    box-shadow: var(--shadow-float);
   }
 }
 
@@ -213,14 +249,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rise {
-    animation: none;
+    animation: rise-fade 200ms ease both;
   }
-  .sticker-hover {
-    transition: none;
+  .card-lift {
+    transition: box-shadow 200ms ease;
   }
-  .sticker-hover:hover {
+  .card-lift:hover,
+  .card-lift:active {
     translate: none;
-    rotate: none;
+    scale: none;
+  }
+}
+@keyframes rise-fade {
+  from {
+    opacity: 0;
   }
 }
 
@@ -245,7 +287,7 @@
 }
 .mind-canvas .react-flow__node.dragging {
   cursor: grabbing;
-  filter: drop-shadow(0 12px 18px oklch(0.4 0.12 350 / 0.28));
+  filter: drop-shadow(0 12px 24px rgb(0 0 0 / 0.18));
 }
 
 /* Layout changes glide instead of jumping. Off while dragging so the node tracks the pointer. */
@@ -363,11 +405,21 @@
 @media (prefers-reduced-transparency: reduce) {
   .material {
     background: var(--background);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass {
+    background: var(--card);
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
 @media (prefers-contrast: more) {
   .material {
     border-bottom-color: var(--border);
+  }
+  .glass {
+    background: var(--card);
+    border-color: var(--foreground);
   }
 }

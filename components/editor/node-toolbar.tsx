@@ -220,7 +220,7 @@ export function NodeToolbar() {
       <div
         role="toolbar"
         aria-label={t.editor.nodeActions}
-        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto max-sm:gap-0 rounded-2xl border bg-card p-1.5 shadow-lg shadow-black/[0.05] [scrollbar-width:none] dark:shadow-black/25"
+        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto max-sm:gap-0 glass rounded-2xl border p-1.5 [scrollbar-width:none]"
       >
         <IconButton
           label={t.editor.addChild}

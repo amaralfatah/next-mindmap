@@ -48,7 +48,7 @@ function RenameForm({ title, onSave, onCancel }: { title: string; onSave: (t: st
   return (
     <form onSubmit={submit} className="grid gap-4">
       <DialogHeader>
-        <DialogTitle className="font-display text-xl">{t.dialogs.renameTitle}</DialogTitle>
+        <DialogTitle className="text-xl font-semibold">{t.dialogs.renameTitle}</DialogTitle>
       </DialogHeader>
       <label className="grid gap-1.5 text-sm font-medium">
         {t.dialogs.renameLabel}
@@ -82,7 +82,7 @@ export function DeleteDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-display text-xl">{t.dialogs.deleteTitle(title)}</AlertDialogTitle>
+          <AlertDialogTitle className="text-xl font-semibold">{t.dialogs.deleteTitle(title)}</AlertDialogTitle>
           <AlertDialogDescription>{t.dialogs.deleteBody}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -122,7 +122,7 @@ export function PasteOutlineDialog({
       <DialogContent className="sm:max-w-xl">
         <form onSubmit={submit} className="grid gap-4">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl">{t.dialogs.pasteTitle}</DialogTitle>
+            <DialogTitle className="text-xl font-semibold">{t.dialogs.pasteTitle}</DialogTitle>
             <DialogDescription>{t.dialogs.pasteBody}</DialogDescription>
           </DialogHeader>
           <Textarea

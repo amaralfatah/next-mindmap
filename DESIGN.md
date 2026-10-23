@@ -1,52 +1,54 @@
 # Mind Map Design System & Brand Identity
 
-> Mind Map is a pink sticker-book notebook for thinking: blush dotted paper, berry ink, and playful, rounded shapes.
-> Purpose: untangling everything on your mind into one map, and keeping those maps for years (the author has maps from 2023 onward). Friendly, but every interaction stays functional and honest.
+> Mind Map follows Apple's Human Interface Guidelines: quiet system neutrals, the system typeface, translucent floating chrome and one pink tint.
+> Purpose: untangling everything on your mind into one map, and keeping those maps for years (the author has maps from 2023 onward). Calm, direct, and every interaction stays functional and honest.
 
 ---
 
-## 1. Brand Metaphor & Core Character
+## 1. Character
 
-- **Concept**: A decorated notebook full of stickers. Dotted blush paper, bubblegum-pink accents, chunky sticker shadows.
-- **Tone**: Playful, warm, encouraging, still fast and keyboard-first.
-- **Posture**: No generic AI blue-to-purple gradients, no fake metrics, no dead mockup elements.
+- **Concept**: Content first. The map is the hero; chrome floats above it as a light material and gets out of the way (deference, clarity, depth).
+- **Tone**: Calm, confident, fast and keyboard-first.
+- **Posture**: No generic AI blue-to-purple gradients, no fake metrics, no dead mockup elements, no decoration that doesn't carry meaning.
 
 ---
 
-## 2. Color Palette (OKLCH)
+## 2. Color
 
-### Core Foundation
-- **Background (`--background`)**: Blush paper `oklch(0.982 0.014 350)` (Dark: aubergine `oklch(0.2 0.04 340)`)
-- **Secondary Surface (`--paper-2`)**: `oklch(0.96 0.03 350)`
-- **Foreground (`--foreground`)**: Deep berry ink `oklch(0.27 0.06 350)` (Dark: `oklch(0.95 0.02 350)`)
-- **Dot Grid (`--dot`)**: Pink guidance dots `oklch(0.86 0.07 350)`
+### Foundation (Apple system neutrals)
+- **Background (`--background`)**: `#f5f5f7` (Dark: `#000000`). **Card / grouped surface (`--card`)**: `#ffffff` (Dark: `#1c1c1e`). **Popover**: `#ffffff` (Dark: `#2c2c2e`).
+- **Label (`--foreground`)**: `#1d1d1f` (Dark: `#f5f5f7`). **Secondary label (`--muted-foreground`)**: `#6e6e73` (Dark: `#98989d`).
+- **Fills**: `--secondary` / `--muted` are system fills (`rgb(120 120 128 / 0.12)`). **Separator (`--border`)**: `rgb(0 0 0 / 0.1)`.
+- **Dot grid (`--dot`)**: a faint neutral grid on the canvas, like Freeform.
 
-### One Deliberate Accent
-- **Bubblegum Pink (`--primary`)**: `oklch(0.58 0.21 5)`; text-safe variant `--ink` `oklch(0.54 0.2 5)`. `--ink-soft` is the sticker shadow color.
+### One tint
+- **System pink (`--primary`)**: `#e8194b` (Dark: `#ff375f`); text-safe variant `--ink` `#d30f45` (Dark: `#ff6482`). Used for the primary action, selection and focus only.
 
-### Branch Pigments (Data Visualization)
-- Candy set used for mind map branches and edges. Slot names are stored keys in saved maps, so they keep their old names:
-  `teal` = hot pink, `clay` = coral, `ochre` = butter, `moss` = mint, `indigo` = lavender, `plum` = orchid, `rose` = bubblegum, `slate` = sky.
-  Node text always stays `--foreground`.
+### Branch pigments
+- Apple system colors for branches and edges. Slot names are stored keys in saved maps, so they keep their old names:
+  `teal` = pink, `clay` = orange, `ochre` = yellow, `moss` = green, `indigo` = indigo, `plum` = purple, `rose` = red, `slate` = blue.
+  Filled nodes on yellow, orange and green use dark text; the rest use white. Node text otherwise stays `--foreground`.
 
 ---
 
 ## 3. Typography
 
-- **Display (`--font-display`)**: Fredoka, a round, friendly face for headings and nodes.
-- **Body (`--font-sans`)**: Nunito, rounded and highly legible.
-- **Mono (`--font-mono`)**: Geist Mono for keyboard shortcuts.
+- **Text and display**: the system face (`system-ui`, SF Pro on Apple devices). No web fonts for UI text.
+- **Tracking is size-specific**: large titles tighten (`-0.03em` hero, `-0.025em` page titles, `-0.022em` h1/h2), body stays at `0`.
+- **Hierarchy** comes from weight + size + leading together: bold, tight leading for titles; regular, `1.5` leading for body.
+- **Mono**: `ui-monospace` (SF Mono), Geist Mono as fallback, for keyboard shortcuts.
 
 ---
 
-## 4. Shape, Motion & Dose Caps
+## 4. Shape, Materials & Motion
 
-- **Radius**: base `1rem`, cards `rounded-3xl`. Only the primary action is a full pill; secondary buttons use `rounded-xl` so controls keep a visible hierarchy.
-- **Stickers**: `.sticker` / `.sticker-hover` give a hard offset pink shadow; cards tilt slightly on hover (pointer devices only).
-- **Motion**: Level 2. Canvas transitions capped at 140ms; entrances 520ms rise. Respect `prefers-reduced-motion`. No endless animated loops.
-- **Glass**: max 1 blurred boundary (the home sticky nav). Editor bars, palettes, panels and dialog scrims stay opaque.
+- **Radius**: base `0.75rem`. Cards `rounded-2xl`, dialogs `rounded-2xl`, menus and popovers `rounded-xl`. Only the primary action is a full capsule; secondary buttons use `rounded-xl`.
+- **Cards** (`.card-surface`, `.card-lift`): white platter, hairline edge, soft ambient shadow (`--shadow-card`). Hover lifts 2px with `--shadow-lift` (pointer devices only); press scales to `0.98` instantly. No tilt.
+- **Materials** (`.glass`): editor bars, palettes, zoom and search float as a translucent material (`--material` + `backdrop-filter: blur(24px) saturate(180%)`, `--shadow-float`). The home header is a `.material` bar that gains a hairline once scrolled. Menus, popovers and dialogs stay opaque so a translucent layer never sits on another.
+- **Accessibility**: `prefers-reduced-transparency` makes glass solid; `prefers-contrast: more` adds a defined border; `prefers-reduced-motion` swaps rises and lifts for short cross-fades.
+- **Motion**: springs, not timed curves. `--ease-spring` is a critically damped spring (no overshoot) for entrances and lifts; `--ease-out-apple` for control feedback. Feedback lands on press. Canvas layout transitions stay at 140ms so keystrokes never feel laggy. No endless loops.
 - **Lockup**: header and screens use the Mind Map lockup: the kawung glyph (four ovals around a centre, one oval in `--primary`) + "Mind Map" in Inter SemiBold, ink `#1d1d1f` / white. The app icon (same kawung on a Sararia ink tile, `scripts/logo.mjs`) is for the favicon and home screen only.
-- **Emoji**: none in UI text. Cuteness comes from color, shape and tone of voice.
+- **Emoji**: none in UI text.
 
 ---
 

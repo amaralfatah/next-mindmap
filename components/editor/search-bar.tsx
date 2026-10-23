@@ -21,7 +21,7 @@ export function SearchBar() {
   return (
     <div
       role="search"
-      className="pointer-events-auto flex h-10 items-center gap-1 rounded-xl border bg-background/95 p-1 pl-2.5 shadow-sm max-sm:absolute max-sm:inset-x-2 max-sm:top-[calc(env(safe-area-inset-top,0px)+3.5rem)] sm:w-80"
+      className="pointer-events-auto flex h-10 items-center gap-1 glass rounded-xl border p-1 pl-2.5 max-sm:absolute max-sm:inset-x-2 max-sm:top-[calc(env(safe-area-inset-top,0px)+3.5rem)] sm:w-80"
     >
       <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
       <input

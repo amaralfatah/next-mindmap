@@ -10,7 +10,7 @@ export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenC
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">{t.dialogs.shortcutsTitle}</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">{t.dialogs.shortcutsTitle}</DialogTitle>
         </DialogHeader>
         <dl className="-mx-1 grid max-h-[65dvh] gap-x-6 overflow-y-auto px-1 sm:grid-cols-2">
           {t.shortcuts.map((s) => (

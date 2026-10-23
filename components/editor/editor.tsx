@@ -157,7 +157,7 @@ function Message({ title, body, signIn }: { title: string; body: string; signIn?
     <main className="dot-paper grid min-h-dvh place-items-center p-6">
       <div className="rise max-w-sm text-center">
         <Wordmark className="mb-8" />
-        <h1 className="font-display text-2xl font-bold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-bold">{title}</h1>
         <p className="mt-2 text-muted-foreground">{body}</p>
         {signIn ? (
           <AuthButton cta={t.auth.signInToOpen} className="mt-6" />

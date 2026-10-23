@@ -91,8 +91,8 @@ function MapCardSkeleton({ index }: { index: number }) {
       className="rise group relative"
       style={{ animationDelay: `${Math.min(index, 6) * 45}ms` }}
     >
-      <div className="sticker overflow-hidden rounded-3xl border-2 bg-card">
-        <div className="dot-paper aspect-[16/9] border-b bg-paper-2/70 p-3 flex items-center justify-center">
+      <div className="card-surface overflow-hidden rounded-2xl">
+        <div className="aspect-[16/9] border-b bg-paper-2/70 p-3 flex items-center justify-center">
           <div className="size-8 rounded-full bg-muted/70 animate-pulse" />
         </div>
         <div className="p-3 pr-12 space-y-2">
@@ -129,14 +129,14 @@ function MapCard({
     >
       <Link
         href={href}
-        className="sticker sticker-hover block overflow-hidden rounded-3xl border-2 bg-card outline-none active:scale-[0.99] focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="card-surface card-lift block overflow-hidden rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        <div className="dot-paper aspect-[16/9] border-b bg-paper-2 p-3">
+        <div className="aspect-[16/9] border-b bg-paper-2 p-3">
           <MapThumb map={map} />
         </div>
         <div className="p-3 pr-12">
           <h3
-            className="truncate font-display text-[17px] font-semibold tracking-tight"
+            className="truncate text-[17px] font-semibold"
             title={map.title}
           >
             {map.title}
@@ -327,7 +327,7 @@ export function Home() {
       </a>
       <header
         data-scrolled={scrolled}
-        className="material sticky top-0 z-20 border-b border-transparent bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur-md transition-[border-color,box-shadow] duration-200 ease-out data-[scrolled=true]:border-border data-[scrolled=true]:shadow-xs"
+        className="material sticky top-0 z-20 border-b border-transparent bg-background/72 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-180 transition-[border-color] duration-200 ease-out data-[scrolled=true]:border-border"
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <Link
@@ -393,7 +393,7 @@ export function Home() {
         ) : loadError ? null : !hasMaps ? (
           <section className="grid items-center gap-8 pt-8 pb-12 sm:gap-10 lg:my-auto lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14 lg:py-10">
             <div className="rise">
-              <h1 className="font-display text-[clamp(2.5rem,5.2vw,4rem)] leading-[1.06] font-semibold tracking-[-0.02em] text-balance">
+              <h1 className="text-[clamp(2.5rem,5.2vw,4rem)] leading-[1.05] font-bold tracking-[-0.03em] text-balance">
                 {t.home.heroTitle}
               </h1>
               <p className="mt-5 max-w-md text-lg leading-relaxed text-pretty text-muted-foreground">
@@ -438,8 +438,7 @@ export function Home() {
                 </div>
               )}
             </div>
-            {/* mr-1 = the sticker shadow's 4px offset, so the shadow ends on the page gutter. */}
-            <figure className="rise mr-1 overflow-hidden sticker rounded-3xl sm:rounded-[2rem] border-2 bg-paper-2 [animation-delay:120ms]">
+            <figure className="rise card-surface overflow-hidden rounded-3xl sm:rounded-[2rem] [animation-delay:120ms]">
               <div className="dot-paper px-2 py-4 sm:px-6 sm:py-7">
                 <HeroArt crop className="sm:hidden" />
                 <HeroArt className="max-sm:hidden" />
@@ -451,7 +450,7 @@ export function Home() {
             <div className="flex flex-wrap items-end gap-3">
               <h1
                 id="maps-title"
-                className="mr-auto font-display text-3xl leading-tight font-semibold tracking-[-0.015em]"
+                className="mr-auto text-[2rem] leading-tight font-bold tracking-[-0.025em]"
               >
                 {t.home.yourMaps}
               </h1>
