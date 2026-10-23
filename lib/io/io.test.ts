@@ -1,93 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { approxTextWidth, layoutMap } from "@/lib/layout";
-import { addChild, createMap, MapFormatError, toggleCollapsed, updateNode, type MindMap } from "@/lib/model";
-import {
-  exportBackupJson,
-  exportMapJson,
-  exportMarkdown,
-  exportOpml,
-  exportSvg,
-  fileNameFor,
-  importJson,
-  importMarkdown,
-  importOpml,
-  parseColor,
-  toHex,
-  type ExportPalette,
-} from "./index";
-
-function sample(): MindMap {
-  let map = createMap("Launch plan");
-  const a = addChild(map, map.rootId, "Research");
-  map = a.map;
-  const b = addChild(map, map.rootId, "Build");
-  map = b.map;
-  const a1 = addChild(map, a.id, "Interview 5 users");
-  map = updateNode(a1.map, a1.id, { note: "Ask about pricing\nand onboarding", bold: true });
-  const a2 = addChild(map, a1.id, "Line one\nline two");
-  map = updateNode(a2.map, a2.id, { italic: true });
-  map = addChild(map, b.id, "Prototype <fast> & cheap").map;
-  return map;
-}
-
-/** Structure without ids: what an outline round trip should preserve. */
-function shape(map: MindMap): unknown {
-  const visit = (id: string): unknown => {
-    const n = map.nodes[id];
-    return { text: n.text, note: n.note, bold: n.bold, italic: n.italic, children: n.childIds.map(visit) };
-  };
-  return visit(map.rootId);
-}
-
-describe("JSON", () => {
-  it("round-trips a map exactly, with a new id", () => {
-    const map = sample();
-    const [imported] = importJson(exportMapJson(map));
-    expect(imported.id).not.toBe(map.id);
-    expect({ ...imported, id: map.id }).toEqual(map);
-  });
-
-  it("imports a backup of several maps", () => {
-    const maps = [sample(), createMap("Other")];
-    const imported = importJson(exportBackupJson(maps));
-    expect(imported.map((m) => m.title)).toEqual(["Launch plan", "Other"]);
-  });
-
-  it("rejects garbage and newer versions", () => {
-    expect(() => importJson("{not json")).toThrow(MapFormatError);
-    expect(() => importJson(JSON.stringify({ ...sample(), schemaVersion: 2 }))).toThrow(/newer version/);
-    expect(() => importJson(JSON.stringify({ kind: "mindmap-backup", maps: [] }))).toThrow(MapFormatError);
-  });
-});
+import { importMarkdown } from "./index";
 
 describe("Markdown", () => {
-  it("exports headings, nested lists, notes and styles", () => {
-    const md = exportMarkdown(sample());
-    expect(md).toContain("# Launch plan");
-    expect(md).toContain("## Research");
-    expect(md).toContain("- **Interview 5 users**");
-    expect(md).toContain("  > Ask about pricing");
-    expect(md).toContain("  - *Line one<br>line two*");
-  });
-
-  it("round-trips Markdown -> map -> Markdown", () => {
-    const md = exportMarkdown(sample());
-    const again = exportMarkdown(importMarkdown(md));
-    expect(again).toBe(md);
-  });
-
-  it("round-trips map -> Markdown -> map structure", () => {
-    const map = sample();
-    expect(shape(importMarkdown(exportMarkdown(map)))).toEqual(shape(map));
-  });
-
-  it("keeps Markdown-looking text literal through a round trip", () => {
-    let map = createMap("C#");
-    for (const text of ["*not italic*", "**not bold**", "[x] not a task", "a <br> b", "under_score", "# hash"]) {
-      map = addChild(map, map.rootId, text).map;
-    }
-    const again = importMarkdown(exportMarkdown(map));
-    expect(shape(again)).toEqual(shape(map));
+  it("reads headings, nested lists, notes and styles", () => {
+    const md = [
+      "# Launch plan",
+      "",
+      "## Research",
+      "- **Interview 5 users**",
+      "  > Ask about pricing",
+      "  > and onboarding",
+      "  - *Line one<br>line two*",
+      "",
+      "## Build",
+      "- Prototype \\<fast\\> & cheap",
+    ].join("\n");
+    const map = importMarkdown(md);
+    expect(map.title).toBe("Launch plan");
+    const [research, build] = map.nodes[map.rootId].childIds.map((id) => map.nodes[id]);
+    expect(research.text).toBe("Research");
+    const interview = map.nodes[research.childIds[0]];
+    expect(interview).toMatchObject({ text: "Interview 5 users", bold: true, note: "Ask about pricing\nand onboarding" });
+    expect(map.nodes[interview.childIds[0]]).toMatchObject({ text: "Line one\nline two", italic: true });
+    expect(map.nodes[build.childIds[0]].text).toBe("Prototype <fast> & cheap");
   });
 
   it("handles AI-chat style outlines with mixed markers and skipped levels", () => {
@@ -126,86 +61,5 @@ describe("Markdown", () => {
 
   it("returns an empty map for empty input", () => {
     expect(Object.keys(importMarkdown("  \n", "Empty").nodes)).toHaveLength(1);
-  });
-});
-
-describe("SVG", () => {
-  const palette: ExportPalette = {
-    background: "#ffffff",
-    foreground: "#111111",
-    muted: "#777777",
-    rootFill: "#111111",
-    rootText: "#ffffff",
-    branches: {
-      teal: "#0f766e",
-      clay: "#c2410c",
-      ochre: "#ca8a04",
-      indigo: "#4f46e5",
-      moss: "#4d7c0f",
-      plum: "#a21caf",
-      rose: "#e11d48",
-      slate: "#475569",
-    },
-  };
-
-  it("renders every visible node and escapes text", () => {
-    const map = sample();
-    const svg = exportSvg(map, layoutMap(map, approxTextWidth), palette);
-    expect(svg.startsWith("<svg")).toBe(true);
-    expect(svg).toContain("Prototype &lt;fast&gt; &amp; cheap");
-    expect(svg).toContain("#0f766e");
-    expect(svg).not.toContain("<fast>");
-  });
-
-  it("shows a hidden-count badge for collapsed branches", () => {
-    let map = sample();
-    const research = map.nodes[map.rootId].childIds[0];
-    map = toggleCollapsed(map, research);
-    const svg = exportSvg(map, layoutMap(map, approxTextWidth), palette);
-    expect(svg).not.toContain("Interview 5 users");
-    expect(svg).toMatch(/>2<\/text>/);
-  });
-});
-
-describe("OPML", () => {
-  it("exports outlines and notes into OPML format", () => {
-    const map = sample();
-    const opml = exportOpml(map);
-    expect(opml).toContain('<opml version="2.0">');
-    expect(opml).toContain("<title>Launch plan</title>");
-    expect(opml).toContain('text="Research"');
-    expect(opml).toContain('_note="Ask about pricing&#10;and onboarding"');
-  });
-
-  it("round-trips map -> OPML -> map preserving text and outline structure", () => {
-    const map = sample();
-    const opml = exportOpml(map);
-    const imported = importOpml(opml);
-    expect(imported.title).toBe("Launch plan");
-    expect(imported.nodes[imported.rootId].childIds.length).toBe(2);
-
-    const firstChild = imported.nodes[imported.nodes[imported.rootId].childIds[0]];
-    expect(firstChild.text).toBe("Research");
-    expect(firstChild.childIds.length).toBe(1);
-
-    const grandChild = imported.nodes[firstChild.childIds[0]];
-    expect(grandChild.text).toBe("Interview 5 users");
-    expect(grandChild.note).toBe("Ask about pricing\nand onboarding");
-  });
-});
-
-describe("helpers", () => {
-  it("parses CSS colors to hex", () => {
-    expect(toHex(parseColor("#abc")!)).toBe("#aabbcc");
-    expect(toHex(parseColor("rgb(255, 0, 10)")!)).toBe("#ff000a");
-    expect(toHex(parseColor("oklch(1 0 0)")!)).toBe("#ffffff");
-    expect(toHex(parseColor("oklch(0 0 0)")!)).toBe("#000000");
-    expect(parseColor("oklch(1 0 0 / 11%)")![3]).toBeCloseTo(0.11);
-    expect(parseColor("nonsense")).toBeNull();
-  });
-
-  it("makes safe file names", () => {
-    expect(fileNameFor("Rencana Liburan: Bali/Lombok!", ".png")).toBe("rencana-liburan-bali-lombok.png");
-    expect(fileNameFor("???", ".md")).toBe("mind-map.md");
   });
 });

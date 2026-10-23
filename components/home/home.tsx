@@ -4,16 +4,12 @@ import {
   ArrowRightIcon,
   ClipboardPasteIcon,
   CopyIcon,
-  DownloadIcon,
   EllipsisIcon,
-  FileJsonIcon,
-  FileTextIcon,
   PencilIcon,
   PlusIcon,
   SearchIcon,
   Trash2Icon,
   TriangleAlertIcon,
-  UploadIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,10 +17,8 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   useSyncExternalStore,
-  type ChangeEvent,
 } from "react";
 import { toast } from "sonner";
 import { Notice } from "@/components/notice";
@@ -42,21 +36,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Wordmark } from "@/components/wordmark";
-import { exportMap } from "@/lib/editor/export";
 import { useLocale, useT } from "@/components/i18n-provider";
 import { getT, type Locale } from "@/lib/i18n";
 import { createSampleMap } from "@/lib/sample";
-import {
-  download,
-  exportBackupJson,
-  importJson,
-  importMarkdown,
-  importOpml,
-} from "@/lib/io";
+import { importMarkdown } from "@/lib/io";
 import {
   createMap,
   duplicateMap,
-  MapFormatError,
   nodeCount,
   renameMap,
   type MindMap,
@@ -67,7 +53,6 @@ import {
   deleteMap,
   listMaps,
   loadMap,
-  markExported,
   prefKeys,
   readPref,
   saveMap,
@@ -185,15 +170,6 @@ function MapCard({
               {t.home.duplicate}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => exportMap(map, "json")}>
-              <FileJsonIcon />
-              {t.home.exportJson}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => exportMap(map, "md")}>
-              <FileTextIcon />
-              {t.home.exportMarkdown}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={onDelete}>
               <Trash2Icon />
               {t.home.delete}
@@ -219,7 +195,6 @@ export function Home() {
   const [now, setNow] = useState(0);
   const [busy, setBusy] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -293,62 +268,6 @@ export function Home() {
     router.push(`/map?id=${encodeURIComponent(map.id)}`);
   }
 
-  async function onFiles(e: ChangeEvent<HTMLInputElement>) {
-    const files = [...(e.target.files ?? [])];
-    e.target.value = "";
-    const imported: MindMap[] = [];
-    for (const file of files) {
-      try {
-        const text = await file.text();
-        const name = file.name.toLowerCase();
-        if (name.endsWith(".json")) imported.push(...importJson(text));
-        else if (/\.(md|markdown|txt)$/.test(name))
-          imported.push(
-            importMarkdown(text, file.name.replace(/\.[^.]+$/, "")),
-          );
-        else if (name.endsWith(".opml"))
-          imported.push(
-            importOpml(text, file.name.replace(/\.[^.]+$/, "")),
-          );
-        else
-          toast.error(t.notices.importFailed, {
-            description: t.notices.unsupportedFile,
-          });
-      } catch (err) {
-        toast.error(t.notices.importFailed, {
-          description:
-            err instanceof MapFormatError
-              ? err.message
-              : `${file.name}: ${String(err)}`,
-        });
-      }
-    }
-    if (!imported.length) return;
-    await persistNew(imported);
-    await refresh();
-    toast.success(t.notices.importDone(imported.length), {
-      action:
-        imported.length === 1
-          ? {
-              label: t.home.open,
-              onClick: () =>
-                router.push(`/map?id=${encodeURIComponent(imported[0].id)}`),
-            }
-          : undefined,
-    });
-  }
-
-  async function exportAll() {
-    if (!maps?.length) return;
-    const date = new Date().toISOString().slice(0, 10);
-    download(
-      exportBackupJson(maps),
-      `mindmap-backup-${date}.mindmap.json`,
-      "application/json",
-    );
-    markExported();
-  }
-
   async function rename(map: MindMap, title: string) {
     const fresh = (await loadMap(map.id).catch(() => null)) ?? map;
     await saveMap(renameMap(fresh, title));
@@ -384,15 +303,6 @@ export function Home() {
     const cls = size ? "h-11 px-5 text-[15px]" : undefined;
     return (
       <>
-        <Button
-          variant="outline"
-          size={size}
-          className={cls}
-          onClick={() => fileInput.current?.click()}
-        >
-          <UploadIcon data-icon="inline-start" />
-          {t.home.import}
-        </Button>
         <Button
           variant="outline"
           size={size}
@@ -439,15 +349,6 @@ export function Home() {
           <AuthButton className={!isPending && !userId ? "max-sm:hidden" : undefined} />
         </div>
       </header>
-
-      <input
-        ref={fileInput}
-        type="file"
-        accept=".json,.md,.markdown,.txt,.opml,application/json,text/markdown,text/plain,text/x-opml,application/xml,text/xml"
-        multiple
-        hidden
-        onChange={onFiles}
-      />
 
       <main
         id="main"
@@ -603,12 +504,6 @@ export function Home() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-5 text-sm text-muted-foreground sm:px-6">
           <span className="mr-auto" />
-          {hasMaps && (
-            <Button variant="ghost" size="sm" onClick={exportAll}>
-              <DownloadIcon data-icon="inline-start" />
-              {t.home.backupAll}
-            </Button>
-          )}
           <a
             href="https://sararia.com"
             target="_blank"

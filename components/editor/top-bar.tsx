@@ -5,11 +5,6 @@ import {
   CloudAlertIcon,
   CloudCheckIcon,
   Columns2Icon,
-  DownloadIcon,
-  FileCodeIcon,
-  FileJsonIcon,
-  FileTextIcon,
-  ImageIcon,
   KeyboardIcon,
   LoaderCircleIcon,
   Redo2Icon,
@@ -17,17 +12,13 @@ import {
   Undo2Icon,
 } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
 import { IconButton } from "@/components/icon-button";
 import { ThemeToggle } from "@/components/theme";
 import { AuthButton } from "@/components/auth-button";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { exportMap, type ExportFormat } from "@/lib/editor/export";
 import { useEditor, useMap } from "@/lib/editor/store";
 import { useT } from "@/components/i18n-provider";
-import type { Dict } from "@/lib/i18n";
 import { useIsDemo } from "./demo-context";
 import { SearchBar } from "./search-bar";
 
@@ -65,14 +56,6 @@ function SaveStatus() {
   );
 }
 
-const exportItems = (t: Dict): { format: ExportFormat; label: string; icon: typeof ImageIcon }[] => [
-  { format: "png", label: t.editor.exportPng, icon: ImageIcon },
-  { format: "svg", label: t.editor.exportSvg, icon: FileCodeIcon },
-  { format: "md", label: t.editor.exportMarkdown, icon: FileTextIcon },
-  { format: "opml", label: t.editor.exportOpml, icon: FileCodeIcon },
-  { format: "json", label: t.editor.exportJson, icon: FileJsonIcon },
-];
-
 export function TopBar() {
   const demo = useIsDemo();
   const t = useT();
@@ -81,15 +64,6 @@ export function TopBar() {
   const canRedo = useEditor((s) => Boolean(s.history?.future.length));
   const searchOpen = useEditor((s) => s.search.open);
   const { undo, redo, balanceLayout, openSearch, setShortcutsOpen, startEdit } = useEditor.getState();
-
-  async function runExport(format: ExportFormat) {
-    if (!map) return;
-    try {
-      await exportMap(map, format);
-    } catch {
-      toast.error(t.editor.exportFailed);
-    }
-  }
 
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start gap-2 pb-2 pt-[max(0.625rem,env(safe-area-inset-top))] pl-[max(0.625rem,env(safe-area-inset-left))] pr-[max(0.625rem,env(safe-area-inset-right))]">
@@ -138,24 +112,6 @@ export function TopBar() {
         <IconButton label={t.editor.balanceLayout} onClick={balanceLayout} className="max-sm:hidden">
           <Columns2Icon />
         </IconButton>
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger
-              render={<DropdownMenuTrigger render={<Button variant="ghost" size="icon" aria-label={t.editor.export} />} />}
-            >
-              <DownloadIcon />
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{t.editor.export}</TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="end" className="w-auto min-w-52">
-            {exportItems(t).map(({ format, label, icon: Icon }) => (
-              <DropdownMenuItem key={format} onClick={() => runExport(format)}>
-                <Icon />
-                {label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
         <IconButton label={t.editor.shortcuts} keys={["Ctrl", "/"]} onClick={() => setShortcutsOpen(true)} className="max-sm:hidden">
           <KeyboardIcon />
         </IconButton>

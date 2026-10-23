@@ -7,49 +7,10 @@ import { addChild, createMap, DEFAULT_TITLE, updateNode, type MindMap, type Mind
  *   - child
  *     - grandchild
  *     > note line
- * Bold/italic nodes are wrapped in ** / *. Line breaks inside a node become <br>.
+ * Bold/italic nodes are wrapped in ** / *. <br> inside a node becomes a line break.
  */
 
-const MD_SPECIAL = /([\\*_#[\]<>`])/g;
 const MD_ESCAPED = /\\([\\*_#[\]<>`])/g;
-
-/** Backslash-escapes characters that would otherwise read as Markdown syntax. */
-function escapeMd(text: string): string {
-  return text.replace(MD_SPECIAL, "\\$1");
-}
-
-function inline(node: MindNode): string {
-  const content = node.text.trim() || (node.parentId === null ? DEFAULT_TITLE : "Idea");
-  let text = escapeMd(content).replace(/\r?\n/g, "<br>");
-  if (node.italic) text = `*${text}*`;
-  if (node.bold) text = `**${text}**`;
-  return text;
-}
-
-function noteLines(note: string | undefined, indent: string): string[] {
-  if (!note) return [];
-  return note.split(/\r?\n/).map((line) => `${indent}> ${line}`.trimEnd());
-}
-
-export function exportMarkdown(map: MindMap): string {
-  const root = map.nodes[map.rootId];
-  const out: string[] = [`# ${inline(root)}`, ...noteLines(root.note, "")];
-  // Child order, not grouped by side: Markdown has no sides, and this keeps
-  // Markdown -> map -> Markdown stable (import alternates sides in the same order).
-  for (const id of root.childIds) {
-    const branch = map.nodes[id];
-    out.push("", `## ${inline(branch)}`, ...noteLines(branch.note, ""));
-    const visit = (childId: string, level: number) => {
-      const node = map.nodes[childId];
-      const indent = "  ".repeat(level);
-      out.push(`${indent}- ${inline(node)}`, ...noteLines(node.note, `${indent}  `));
-      for (const c of node.childIds) visit(c, level + 1);
-    };
-    if (branch.childIds.length) out.push("");
-    for (const c of branch.childIds) visit(c, 0);
-  }
-  return out.join("\n") + "\n";
-}
 
 type Item = { depth: number; text: string; note: string[] };
 

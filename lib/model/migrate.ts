@@ -24,7 +24,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Turns untrusted data (IndexedDB record or imported file) into a valid current-version map,
+ * Turns untrusted data (IndexedDB record or server response) into a valid current-version map,
  * or throws a MapFormatError. Never returns a partially valid map.
  */
 export function migrateMap(input: unknown): MindMap {

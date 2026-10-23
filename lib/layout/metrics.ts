@@ -1,6 +1,6 @@
 /**
- * Box metrics per node role. The canvas, the size measurer and the SVG exporter all read
- * these, so a node is the same size on screen and in an exported image.
+ * Box metrics per node role. The canvas and the size measurer both read these, so a node
+ * is drawn at the size it was measured.
  */
 
 export type NodeRole = "root" | "topic";

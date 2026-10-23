@@ -22,12 +22,12 @@ npm start          # run production server
 |---|---|
 | `lib/model/` | The `MindMap` type and pure operations (add, delete, move, collapse, search), snapshot undo history, and `migrateMap`. |
 | `lib/layout/` | Two-sided tree layout (uses `d3-hierarchy` for traversal), text wrapping and measuring, and arrow-key navigation over the laid-out map. |
-| `lib/io/` | `.mindmap.json` (one map or a backup of all maps), Markdown outline import/export, SVG export, PNG rasterizing, color conversion for exports. |
+| `lib/io/` | Markdown outline parser, used by paste-outline and the sample maps. |
 | `lib/storage/` | API client for the Next.js `/api/maps` routes (Neon PostgreSQL). Saves are conditional on the last-seen `updatedAt` (`X-Base-Updated-At`; 409 changed, 410 deleted). Cross-tab notices over `BroadcastChannel`. |
-| `lib/editor/` | The zustand editor store, 500 ms autosave, drop-target logic for drag and drop, the shared layout context, and export actions. |
+| `lib/editor/` | The zustand editor store, 500 ms autosave, drop-target logic for drag and drop, and the shared layout context. |
 | `components/editor/` | Canvas (`@xyflow/react`), custom node and edge, keyboard shortcuts, toolbars, notes panel, search. |
 | `lib/i18n.ts`, `components/i18n-provider.tsx` | Indonesian and English dictionaries. The choice lives in the `mindmap-locale` cookie (default: the browser's first language), so the server renders the right language. Components read it with `useT()`. |
-| `components/home/` | Map list, thumbnails, import, paste-outline, rename, and delete dialogs. |
+| `components/home/` | Map list, thumbnails, paste-outline, rename, and delete dialogs. |
 | `app/api/` | Next.js API endpoints (`/api/maps`, `/api/maps/[id]`) backed by Neon PostgreSQL. |
 
 ## Keyboard Shortcuts
