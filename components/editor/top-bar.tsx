@@ -74,7 +74,7 @@ export function TopBar() {
               <Link
                 href="/"
                 aria-label={t.editor.back}
-                className={buttonVariants({ variant: "ghost", size: "sm", className: "px-1.5" })}
+                className={buttonVariants({ variant: "ghost", size: "sm", className: "px-1.5 pointer-coarse:h-9 pointer-coarse:px-2" })}
               />
             }
           >

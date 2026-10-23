@@ -227,7 +227,7 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
             setErrorMsg(null);
             setDialogOpen(true);
           }}
-          className={`shrink-0 gap-1.5 text-xs font-medium ${className ?? ""}`}
+          className={`shrink-0 gap-1.5 text-xs font-medium pointer-coarse:h-9 pointer-coarse:min-w-9 ${className ?? ""}`}
         >
           <LogInIcon className="size-3.5" />
           <span className={compact ? "max-sm:sr-only" : undefined}>{t.auth.signIn}</span>
@@ -265,17 +265,17 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
             </div>
 
             {errorMsg && (
-              <div className="rounded-md bg-destructive/15 p-2.5 text-xs text-destructive border border-destructive/20">
+              <div role="alert" className="rounded-md bg-destructive/15 p-2.5 text-xs text-destructive border border-destructive/20">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleEmailAuth} className="grid gap-3">
               {mode === "sign-up" && (
-                <div className="grid gap-1">
-                  <label className="text-xs font-medium text-foreground">
+                <label className="grid gap-1">
+                  <span className="text-xs font-medium text-foreground">
                     {t.auth.nameLabel}
-                  </label>
+                  </span>
                   <Input
                     type="text"
                     placeholder={t.auth.namePlaceholder}
@@ -283,14 +283,15 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
                     onChange={(e) => setName(e.target.value)}
                     disabled={submitting}
                     required
+                    autoComplete="name"
                   />
-                </div>
+                </label>
               )}
 
-              <div className="grid gap-1">
-                <label className="text-xs font-medium text-foreground">
+              <label className="grid gap-1">
+                <span className="text-xs font-medium text-foreground">
                   {t.auth.emailLabel}
-                </label>
+                </span>
                 <Input
                   type="email"
                   placeholder={t.auth.emailPlaceholder}
@@ -298,13 +299,14 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting}
                   required
+                  autoComplete="email"
                 />
-              </div>
+              </label>
 
-              <div className="grid gap-1">
-                <label className="text-xs font-medium text-foreground">
+              <label className="grid gap-1">
+                <span className="text-xs font-medium text-foreground">
                   {t.auth.passwordLabel}
-                </label>
+                </span>
                 <Input
                   type="password"
                   placeholder={t.auth.passwordPlaceholder}
@@ -313,8 +315,9 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
                   disabled={submitting}
                   required
                   minLength={8}
+                  autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
                 />
-              </div>
+              </label>
 
               <Button
                 type="submit"
@@ -322,7 +325,10 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
                 className="w-full mt-1 h-9 font-medium"
               >
                 {submitting ? (
-                  <Loader2Icon className="size-4 animate-spin" />
+                  <>
+                    <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                    <span className="sr-only">{mode === "sign-in" ? t.auth.signIn : t.auth.signUpAction}</span>
+                  </>
                 ) : mode === "sign-in" ? (
                   t.auth.signIn
                 ) : (
@@ -342,7 +348,7 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
                     setErrorMsg(null);
                     setMode("sign-up");
                   }}
-                  className="font-semibold text-primary underline underline-offset-2 hover:opacity-80"
+                  className="rounded-sm font-semibold text-ink underline underline-offset-2 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   {t.auth.signUpAction}
                 </button>
@@ -356,7 +362,7 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
                     setErrorMsg(null);
                     setMode("sign-in");
                   }}
-                  className="font-semibold text-primary underline underline-offset-2 hover:opacity-80"
+                  className="rounded-sm font-semibold text-ink underline underline-offset-2 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   {t.auth.signInAction}
                 </button>

@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { dictionaries, locales, type Locale } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 /** Language picker. Each option is written in its own language, so either reader can find theirs. */
 export function LanguageSwitch({ className }: { className?: string }) {
@@ -20,7 +21,13 @@ export function LanguageSwitch({ className }: { className?: string }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="sm" aria-label={t.home.language} title={t.home.language} className={className} />
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={t.home.language}
+            title={t.home.language}
+            className={cn("pointer-coarse:h-9 pointer-coarse:min-w-9", className)}
+          />
         }
       >
         <LanguagesIcon />

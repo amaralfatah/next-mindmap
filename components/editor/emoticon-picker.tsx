@@ -1,7 +1,7 @@
 "use client";
 
 import { ClockIcon, SearchIcon, SmileIcon, XIcon } from "lucide-react";
-import { useMemo, useRef, useState, type MouseEvent } from "react";
+import { useId, useMemo, useRef, useState, type MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -44,6 +44,7 @@ export function EmoticonPicker({
   triggerButton,
 }: EmoticonPickerProps) {
   const t = useT();
+  const placementLabel = useId();
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<EmoticonCategory>("popular");
   const [query, setQuery] = useState("");
@@ -198,11 +199,12 @@ export function EmoticonPicker({
 
           {/* Placement Toggle: Prepend / Append */}
           <div className="flex items-center justify-between px-0.5 text-[11px] text-muted-foreground">
-            <span>Posisi:</span>
-            <div className="flex rounded-md border border-border/60 bg-muted/40 p-0.5">
+            <span id={placementLabel}>{t.editor.emoticonPlacement}</span>
+            <div role="group" aria-labelledby={placementLabel} className="flex rounded-md border border-border/60 bg-muted/40 p-0.5">
               <button
                 type="button"
                 onClick={() => setPlacement("prepend")}
+                aria-pressed={placement === "prepend"}
                 className={cn(
                   "rounded px-2 py-0.5 font-medium transition-colors",
                   placement === "prepend" ? "bg-background text-foreground shadow-2xs" : "hover:text-foreground",
@@ -213,6 +215,7 @@ export function EmoticonPicker({
               <button
                 type="button"
                 onClick={() => setPlacement("append")}
+                aria-pressed={placement === "append"}
                 className={cn(
                   "rounded px-2 py-0.5 font-medium transition-colors",
                   placement === "append" ? "bg-background text-foreground shadow-2xs" : "hover:text-foreground",
@@ -232,6 +235,7 @@ export function EmoticonPicker({
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
+                aria-pressed={activeCategory === cat.id}
                 className={cn(
                   "relative flex shrink-0 flex-col items-center gap-0.5 px-1.5 py-1 text-[11px] font-medium transition-colors cursor-pointer",
                   activeCategory === cat.id ? "text-ink font-semibold" : "text-muted-foreground hover:text-foreground",

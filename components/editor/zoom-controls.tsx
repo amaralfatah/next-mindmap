@@ -32,7 +32,7 @@ export function ZoomControls() {
       <button
         type="button"
         onClick={() => flow.zoomTo(1, { duration: 100 })}
-        className="w-8 rounded-md py-0.5 text-center font-mono text-[10px] text-muted-foreground tabular-nums hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer"
+        className="w-8 rounded-md py-0.5 text-center font-mono text-[11px] text-muted-foreground tabular-nums hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer"
         aria-label={t.editor.zoomReset}
       >
         {Math.round(zoom * 100)}%

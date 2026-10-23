@@ -177,6 +177,7 @@ export function ColorPicker({ nodeId, side = "top", className = touch }: { nodeI
                 !node.color && "ring-2 ring-ink ring-offset-2 ring-offset-popover",
               )}
               title={t.editor.autoColor}
+              aria-label={t.editor.autoColor}
             >
               A
             </button>
@@ -187,8 +188,8 @@ export function ColorPicker({ nodeId, side = "top", className = touch }: { nodeI
               type="button"
               role="radio"
               aria-checked={node.color === c}
-              aria-label={c}
-              title={c}
+              aria-label={t.editor.colorNames[c]}
+              title={t.editor.colorNames[c]}
               onClick={() => patch({ color: c }, nodeId)}
               className={cn(
                 "size-8 rounded-full transition-transform duration-140 ease-out active:scale-95 [@media(hover:hover)]:hover:scale-110",

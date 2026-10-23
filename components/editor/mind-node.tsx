@@ -113,7 +113,8 @@ function AddButton({ label, onClick, className }: { label: string; onClick: () =
       aria-label={label}
       title={label}
       className={cn(
-        "nodrag nopan pointer-events-auto grid shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/25 transition-all duration-120 ease-out hover:scale-110 hover:brightness-105 focus:outline-none active:scale-95",
+        // The ::before pad grows the 20px dot into a fingertip-sized target without changing its look.
+        "nodrag nopan pointer-events-auto relative grid shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/25 transition-[scale,filter] duration-120 ease-out before:absolute before:-inset-2 before:content-[''] hover:scale-110 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 active:duration-0",
         "size-5",
         className,
       )}
@@ -265,7 +266,7 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
             className={cn(
               "nodrag nopan pointer-events-auto absolute z-20 place-items-center rounded-full transition-transform duration-120 ease-out active:scale-95 [@media(hover:hover)]:hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring before:absolute before:-inset-2 before:content-['']",
               node.collapsed && box.hidden > 0
-                ? "flex h-4 min-w-4 px-1 text-[10px] font-bold font-mono text-white shadow-xs"
+                ? "flex h-4 min-w-4 px-1 text-[10px] font-bold font-mono tabular-nums shadow-xs"
                 : "grid size-3.5 border-[2px] bg-background",
               box.side === "left"
                 ? "right-[calc(100%+14px)] translate-x-1/2"
@@ -275,6 +276,8 @@ function MindNodeView({ data }: NodeProps<MindFlowNode>) {
             style={{
               borderColor: "var(--branch)",
               background: node.collapsed && box.hidden > 0 ? "var(--branch)" : undefined,
+              // White on yellow, orange or green is unreadable; follow the filled-node rule.
+              color: node.collapsed && box.hidden > 0 ? (box.color ? getContrastTextColor(box.color) : "var(--background)") : undefined,
             }}
           >
             {node.collapsed && box.hidden > 0 ? (
