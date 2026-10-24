@@ -27,8 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f5f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#191918" },
   ],
   viewportFit: "cover",
   // Android: the keyboard shrinks the layout, so the editor's toolbar stays above it.

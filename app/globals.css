@@ -37,101 +37,102 @@
 }
 
 /*
- * Mind Map follows Apple's Human Interface Guidelines: system neutrals, the system face,
- * one tint (system pink) for the app's own voice, and the system palette for branches.
- * --ink is the pink that stays legible as text on --background.
+ * Mind Map follows Notion's design language: a warm paper canvas, near-black Inter type, one
+ * confident blue for the app's own voice, and the sticker palette for branches (see DESIGN.md).
+ * --ink is the blue that stays legible as text on --background.
  */
 :root {
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-body: var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Helvetica, Arial, sans-serif;
   --font-display-face: var(--font-body);
+  --font-brand-face: var(--font-inter);
 
-  --background: #f5f5f7;
-  --paper-2: #fbfbfd;
-  --foreground: #1d1d1f;
+  --background: #f6f5f4;
+  --paper-2: #fbfaf9;
+  --foreground: #1a1a19;
   --card: #ffffff;
-  --card-foreground: #1d1d1f;
+  --card-foreground: #1a1a19;
   --popover: #ffffff;
-  --popover-foreground: #1d1d1f;
-  --primary: #e8194b;
+  --popover-foreground: #1a1a19;
+  --primary: #0075de;
   --primary-foreground: #ffffff;
-  --secondary: rgb(120 120 128 / 0.12);
-  --secondary-foreground: #1d1d1f;
-  --muted: rgb(120 120 128 / 0.1);
-  --muted-foreground: #6e6e73;
-  --accent: rgb(255 45 85 / 0.12);
-  --accent-foreground: #1d1d1f;
-  --destructive: #d70015;
-  --border: rgb(0 0 0 / 0.1);
-  --input: rgb(0 0 0 / 0.12);
-  --ring: #ff2d55;
-  --ink: #d30f45;
-  --dot: rgb(60 60 67 / 0.18);
-  --radius: 0.75rem;
+  --secondary: rgb(55 53 47 / 0.08);
+  --secondary-foreground: #1a1a19;
+  --muted: rgb(55 53 47 / 0.06);
+  --muted-foreground: #615d59;
+  --accent: rgb(0 117 222 / 0.1);
+  --accent-foreground: #1a1a19;
+  --destructive: #d92c20;
+  --border: #e6e6e6;
+  --input: #dddddd;
+  --ring: #0075de;
+  --ink: #005bab;
+  --dot: rgb(55 53 47 / 0.2);
+  --radius: 0.5rem;
 
-  /* Materials: translucent chrome that content scrolls under. */
-  --material: rgb(255 255 255 / 0.72);
-  --material-edge: rgb(0 0 0 / 0.08);
-  --shadow-float: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 2px 6px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.08);
-  --shadow-card: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 14px rgb(0 0 0 / 0.05);
-  --shadow-lift: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 4px 10px rgb(0 0 0 / 0.06), 0 16px 36px rgb(0 0 0 / 0.1);
+  /* Materials: floating chrome that content scrolls under, kept nearly opaque like paper. */
+  --material: rgb(255 255 255 / 0.88);
+  --material-edge: #e6e6e6;
+  --shadow-float: 0 0.175px 1.04px rgb(0 0 0 / 0.01), 0 0.8px 2.9px rgb(0 0 0 / 0.02), 0 2px 7.8px rgb(0 0 0 / 0.027), 0 4px 18px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 0 0 1px #e6e6e6, 0 0.175px 1.04px rgb(0 0 0 / 0.01), 0 0.8px 2.9px rgb(0 0 0 / 0.02), 0 2px 7.8px rgb(0 0 0 / 0.027);
+  --shadow-lift: 0 0 0 1px #e6e6e6, 0 0.175px 1.04px rgb(0 0 0 / 0.01), 0 0.8px 2.9px rgb(0 0 0 / 0.02), 0 2px 7.8px rgb(0 0 0 / 0.027), 0 4px 18px rgb(0 0 0 / 0.04), 0 23px 52px rgb(0 0 0 / 0.05);
 
   /* Critically damped spring (no overshoot) and a soft one for momentum, as CSS easings. */
   --ease-spring: linear(0, 0.157, 0.438, 0.66, 0.806, 0.894, 0.944, 0.971, 0.986, 0.993, 0.997, 1);
-  --ease-out-apple: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
 
   /*
-   * Branch pigments: Apple system colors. Edges and accents only; node text stays --foreground.
+   * Branch pigments: Notion's sticker palette. Edges and accents only; node text stays --foreground.
    * The slot names are stored keys in saved maps, so they stay; only the hues change.
-   * teal = pink, clay = orange, ochre = yellow, moss = green, indigo = indigo,
-   * plum = purple, rose = red, slate = blue.
+   * teal = blue, clay = orange, ochre = yellow, moss = green, indigo = teal,
+   * plum = purple, rose = pink, slate = stone.
    */
-  --branch-teal: #ff2d55;
-  --branch-clay: #ff9500;
-  --branch-ochre: #f2b600;
-  --branch-moss: #34c759;
-  --branch-indigo: #5856d6;
-  --branch-plum: #af52de;
-  --branch-rose: #ff3b30;
-  --branch-slate: #007aff;
+  --branch-teal: #0075de;
+  --branch-clay: #dd5b00;
+  --branch-ochre: #e8b100;
+  --branch-moss: #1aae39;
+  --branch-indigo: #2a9d99;
+  --branch-plum: #8e5fb8;
+  --branch-rose: #d6407f;
+  --branch-slate: #615d59;
 }
 
 .dark {
-  --background: #000000;
-  --paper-2: #1c1c1e;
-  --foreground: #f5f5f7;
-  --card: #1c1c1e;
-  --card-foreground: #f5f5f7;
-  --popover: #2c2c2e;
-  --popover-foreground: #f5f5f7;
-  --primary: #ff375f;
-  --primary-foreground: #ffffff;
-  --secondary: rgb(120 120 128 / 0.24);
-  --secondary-foreground: #f5f5f7;
-  --muted: rgb(120 120 128 / 0.2);
-  --muted-foreground: #98989d;
-  --accent: rgb(255 55 95 / 0.22);
-  --accent-foreground: #f5f5f7;
-  --destructive: #ff453a;
+  --background: #191918;
+  --paper-2: #202020;
+  --foreground: #f3f2f1;
+  --card: #202020;
+  --card-foreground: #f3f2f1;
+  --popover: #2a2a29;
+  --popover-foreground: #f3f2f1;
+  --primary: #3b9bf0;
+  --primary-foreground: #08111a;
+  --secondary: rgb(255 255 255 / 0.1);
+  --secondary-foreground: #f3f2f1;
+  --muted: rgb(255 255 255 / 0.07);
+  --muted-foreground: #9b9a97;
+  --accent: rgb(59 155 240 / 0.18);
+  --accent-foreground: #f3f2f1;
+  --destructive: #ff6a5e;
   --border: rgb(255 255 255 / 0.12);
   --input: rgb(255 255 255 / 0.16);
-  --ring: #ff375f;
-  --ink: #ff6482;
-  --dot: rgb(235 235 245 / 0.16);
+  --ring: #3b9bf0;
+  --ink: #62aef0;
+  --dot: rgb(255 255 255 / 0.16);
 
-  --material: rgb(30 30 32 / 0.72);
+  --material: rgb(32 32 32 / 0.88);
   --material-edge: rgb(255 255 255 / 0.1);
-  --shadow-float: 0 0 0 0.5px rgb(255 255 255 / 0.06), 0 8px 24px rgb(0 0 0 / 0.5);
-  --shadow-card: 0 0 0 0.5px rgb(255 255 255 / 0.06), 0 4px 14px rgb(0 0 0 / 0.4);
-  --shadow-lift: 0 0 0 0.5px rgb(255 255 255 / 0.08), 0 16px 36px rgb(0 0 0 / 0.6);
+  --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.08), 0 8px 24px rgb(0 0 0 / 0.5);
+  --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.08), 0 4px 14px rgb(0 0 0 / 0.35);
+  --shadow-lift: 0 0 0 1px rgb(255 255 255 / 0.1), 0 16px 36px rgb(0 0 0 / 0.55);
 
-  --branch-teal: #ff375f;
-  --branch-clay: #ff9f0a;
-  --branch-ochre: #ffd60a;
-  --branch-moss: #30d158;
-  --branch-indigo: #5e5ce6;
-  --branch-plum: #bf5af2;
-  --branch-rose: #ff453a;
-  --branch-slate: #0a84ff;
+  --branch-teal: #3b9bf0;
+  --branch-clay: #ff8a3d;
+  --branch-ochre: #f5c542;
+  --branch-moss: #3fcf5e;
+  --branch-indigo: #3cbdb8;
+  --branch-plum: #b78be6;
+  --branch-rose: #ff7ac0;
+  --branch-slate: #a8a39d;
 }
 
 @layer base {
@@ -157,7 +158,7 @@
   [data-slot="button"]:not(:disabled) {
     transition-property: color, background-color, border-color, box-shadow, transform;
     transition-duration: 160ms;
-    transition-timing-function: var(--ease-out-apple);
+    transition-timing-function: var(--ease-out);
   }
   [data-slot="button"]:not(:disabled):active {
     transform: scale(0.97);
@@ -172,16 +173,16 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "kern";
+    font-feature-settings: "kern", "lnum";
     text-rendering: optimizeLegibility;
   }
   /* Size-specific tracking: large type tightens, small type stays at the face's own spacing. */
   h1,
   h2 {
-    letter-spacing: -0.022em;
+    letter-spacing: -0.03em;
   }
   h3 {
-    letter-spacing: -0.012em;
+    letter-spacing: -0.015em;
   }
   ::selection {
     background: color-mix(in oklch, var(--ink) 25%, transparent);
@@ -193,7 +194,7 @@
 }
 
 @layer components {
-  /* Subtle dot grid, like Freeform's canvas. The editor canvas draws its own via xyflow. */
+  /* Subtle dot grid on the paper canvas. The editor canvas draws its own via xyflow. */
   .dot-paper {
     background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
     background-size: 22px 22px;
@@ -229,8 +230,8 @@
   /* Glass: floating chrome (bars, palettes) as a translucent material over the content. */
   .glass {
     background: var(--material);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
     border-color: var(--material-edge);
     box-shadow: var(--shadow-float);
   }

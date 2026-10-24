@@ -1,6 +1,6 @@
 import { isBranchColor } from "@/lib/model";
 
-const LIGHT_BRANCHES = new Set(["ochre", "clay", "moss"]);
+const LIGHT_BRANCHES = new Set(["ochre", "moss"]);
 
 export function branchVar(color: string | null): string {
   return color ? `var(--branch-${color})` : "var(--foreground)";
@@ -14,8 +14,8 @@ export function resolveNodeColor(color: string | undefined): string | undefined 
 
 export function getContrastTextColor(fillColor: string | undefined): string | undefined {
   if (!fillColor) return undefined;
-  // Yellow, orange and green system colors are too light for white text.
-  if (isBranchColor(fillColor)) return LIGHT_BRANCHES.has(fillColor) ? "#1d1d1f" : "#ffffff";
+  // Yellow and green pigments are too light for white text.
+  if (isBranchColor(fillColor)) return LIGHT_BRANCHES.has(fillColor) ? "#1a1a19" : "#ffffff";
   if (fillColor.startsWith("#")) {
     let hex = fillColor.slice(1);
     if (hex.length === 3) hex = hex.split("").map((x) => x + x).join("");
