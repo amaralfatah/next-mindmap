@@ -72,7 +72,7 @@ export function TopBar() {
           <TooltipTrigger
             render={
               <Link
-                href="/"
+                href={demo ? "/" : "/maps"}
                 aria-label={t.editor.back}
                 className={buttonVariants({ variant: "ghost", size: "sm", className: "px-1.5 pointer-coarse:h-9 pointer-coarse:px-2" })}
               />

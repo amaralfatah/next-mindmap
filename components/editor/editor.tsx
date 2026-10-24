@@ -135,7 +135,7 @@ function CrossTabNotice({ mapId }: { mapId: string }) {
           icon={<TriangleAlertIcon />}
           actions={
             <>
-              <Button size="sm" variant="ghost" onClick={() => router.push("/")}>
+              <Button size="sm" variant="ghost" onClick={() => router.push("/maps")}>
                 {t.editor.back}
               </Button>
               <Button size="sm" onClick={keepMine}>
@@ -162,7 +162,7 @@ function Message({ title, body, signIn }: { title: string; body: string; signIn?
         {signIn ? (
           <AuthButton cta={t.auth.signInToOpen} className="mt-6" />
         ) : (
-          <Button className="mt-6" nativeButton={false} render={<Link href="/" />}>
+          <Button className="mt-6" nativeButton={false} render={<Link href="/maps" />}>
             {t.editor.back}
           </Button>
         )}

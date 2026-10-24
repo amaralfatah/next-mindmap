@@ -18,7 +18,6 @@ import {
   useEffect,
   useMemo,
   useState,
-  useSyncExternalStore,
 } from "react";
 import { toast } from "sonner";
 import { Notice } from "@/components/notice";
@@ -53,14 +52,9 @@ import {
   deleteMap,
   listMaps,
   loadMap,
-  prefKeys,
-  readPref,
   saveMap,
   subscribe,
-  writePref,
 } from "@/lib/storage";
-
-const noopSubscribe = () => () => {};
 import { DeleteDialog, PasteOutlineDialog, RenameDialog } from "./dialogs";
 import { HeroArt } from "./hero-art";
 import { MapThumb } from "./map-thumb";
@@ -181,7 +175,11 @@ function MapCard({
   );
 }
 
-export function Home() {
+/**
+ * "landing" is the signed-out welcome at `/`; "maps" is the signed-in home at `/maps`. The pages
+ * redirect on the server; the effect below follows sign-in and sign-out that happen in place.
+ */
+export function Home({ view }: { view: "landing" | "maps" }) {
   const t = useT();
   const [locale] = useLocale();
   const router = useRouter();
@@ -212,7 +210,8 @@ export function Home() {
   // (sign in or out) instead of requiring a page refresh.
   useEffect(() => {
     if (isPending) return;
-    writePref(prefKeys.signedIn, userId ? "1" : null);
+    if (view === "landing" && userId) return router.replace("/maps");
+    if (view === "maps" && !userId) return router.replace("/");
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMaps(null);
     if (!userId) return;
@@ -222,7 +221,7 @@ export function Home() {
       await refresh();
     })();
     return subscribe(() => void refresh());
-  }, [refresh, userId, isPending]);
+  }, [refresh, userId, isPending, view, router]);
 
   // Header edge appears only once content scrolls beneath it, instead of a permanent divider.
   useEffect(() => {
@@ -289,15 +288,10 @@ export function Home() {
     await refresh();
   }
 
-  const hasMaps = Boolean(userId && maps?.length);
-  // The session check can take seconds on a cold start. Rather than a blank page, show what this
-  // browser most likely gets: the map skeleton if it was signed in last time, else the welcome.
-  const wasSignedIn = useSyncExternalStore(
-    noopSubscribe,
-    () => readPref(prefKeys.signedIn) === "1",
-    () => false,
-  );
-  const loading = (isPending && wasSignedIn) || (Boolean(userId) && maps === null && !loadError);
+  const hasMaps = view === "maps" && Boolean(userId && maps?.length);
+  // The server already checked the session, so `/maps` shows the skeleton until the list arrives.
+  const loading = view === "maps" && (!userId || maps === null) && !loadError;
+  const signedIn = view === "maps";
 
   const actions = (size?: "lg") => {
     const cls = size ? "h-11 px-5 text-[15px]" : undefined;
@@ -331,7 +325,7 @@ export function Home() {
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <Link
-            href="/"
+            href={signedIn ? "/maps" : "/"}
             className="flex items-center rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <Wordmark className="whitespace-nowrap" />
@@ -346,7 +340,7 @@ export function Home() {
             </Button>
           )}
           {/* Signed out, the hero's own sign-in button is the action; on phones one is enough. */}
-          <AuthButton className={!isPending && !userId ? "max-sm:hidden" : undefined} />
+          <AuthButton className={signedIn ? undefined : "max-sm:hidden"} />
         </div>
       </header>
 
@@ -399,7 +393,7 @@ export function Home() {
               <p className="mt-5 max-w-md text-lg leading-relaxed text-pretty text-muted-foreground">
                 {t.home.heroLead}
               </p>
-              {userId ? (
+              {signedIn ? (
                 <>
                   <div className="mt-8 flex flex-wrap items-center gap-2">
                     <Button
