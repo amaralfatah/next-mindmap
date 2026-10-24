@@ -33,13 +33,13 @@ export function Mark({ className }: { className?: string }) {
 
 /**
  * Mind Map lockup: the kawung glyph, then the product name in Inter SemiBold with −0.045em
- * tracking, in the text colour. Only the glyph's one oval takes --primary.
+ * tracking, in ink (#1d1d1f) on light and white on dark. Only the glyph's one oval is pink.
  */
 export function Wordmark({ className, title = "Mind Map" }: { className?: string; title?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-[0.4em] font-[family-name:var(--font-brand-face)] text-[17px] leading-none font-semibold tracking-[-0.045em] text-foreground",
+        "inline-flex items-center gap-[0.4em] font-[family-name:var(--font-brand-face)] text-[17px] leading-none font-semibold tracking-[-0.045em] text-[#1d1d1f] dark:text-white",
         className,
       )}
     >
