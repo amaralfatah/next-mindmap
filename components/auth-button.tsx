@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/components/i18n-provider";
+import { PreferenceSubmenus } from "@/components/language-switch";
 
 /**
  * Google brand icon for OAuth button.
@@ -194,6 +195,8 @@ export function AuthButton({ className, cta, compact }: { className?: string; ct
               </div>
             </DropdownMenuLabel>
           </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <PreferenceSubmenus />
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut}>
             <LogOutIcon />

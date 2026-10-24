@@ -22,7 +22,6 @@ import {
 import { toast } from "sonner";
 import { Notice } from "@/components/notice";
 import { LanguageSwitch } from "@/components/language-switch";
-import { ThemeToggle } from "@/components/theme";
 import { AuthButton } from "@/components/auth-button";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -331,8 +330,6 @@ export function Home({ view }: { view: "landing" | "maps" }) {
             <Wordmark className="whitespace-nowrap" />
           </Link>
           <div className="flex-1" />
-          <LanguageSwitch />
-          <ThemeToggle />
           {hasMaps && (
             <Button onClick={newMap} disabled={busy} className="shrink-0">
               <PlusIcon data-icon="inline-start" />
@@ -495,16 +492,16 @@ export function Home({ view }: { view: "landing" | "maps" }) {
       </main>
 
       <footer className="border-t">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-5 text-sm text-muted-foreground sm:px-6">
-          <span className="mr-auto" />
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 text-xs text-muted-foreground sm:px-6">
           <a
             href="https://sararia.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline-offset-4 hover:underline"
+            className="rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
           >
-            {t.home.madeBy}
+            © {new Date().getFullYear()} {t.home.madeBy}
           </a>
+          <LanguageSwitch />
         </div>
       </footer>
 

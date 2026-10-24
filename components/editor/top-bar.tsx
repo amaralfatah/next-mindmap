@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { IconButton } from "@/components/icon-button";
-import { ThemeToggle } from "@/components/theme";
 import { AuthButton } from "@/components/auth-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -115,7 +114,6 @@ export function TopBar() {
         <IconButton label={t.editor.shortcuts} keys={["Ctrl", "/"]} onClick={() => setShortcutsOpen(true)} className="max-sm:hidden">
           <KeyboardIcon />
         </IconButton>
-        <ThemeToggle className="max-sm:hidden" />
         <AuthButton compact />
       </div>
     </header>

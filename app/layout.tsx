@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { ThemeScript } from "@/components/theme";
+import { ThemeScript, ThemeWatcher } from "@/components/theme";
 import { AppToaster } from "@/components/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { fontVariables } from "@/lib/fonts";
@@ -46,6 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <I18nProvider locale={locale}>
           <TooltipProvider delay={400}>{children}</TooltipProvider>
           <AppToaster />
+          <ThemeWatcher />
         </I18nProvider>
         <Analytics />
       </body>

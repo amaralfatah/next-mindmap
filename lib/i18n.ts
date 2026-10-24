@@ -1,5 +1,5 @@
 /**
- * UI strings in Indonesian and English. The person picks one with the switcher in the header; the
+ * UI strings in Indonesian and English. The person picks one in the footer or the account menu; the
  * choice lives in a cookie so the server renders the same language and nothing flashes.
  * Components read the active dictionary with `useT()` (components/i18n-provider.tsx).
  */
@@ -15,6 +15,12 @@ const id = {
     description:
       "Sararia Mind Map adalah peta pikiran yang cepat dan nyaman dipakai dengan keyboard. Rapikan ide, rencanakan proyek, dan curahkan isi kepala dengan mudah.",
     skip: "Langsung ke konten",
+  },
+  prefs: {
+    appearance: "Tampilan",
+    light: "Terang",
+    dark: "Gelap",
+    system: "Otomatis",
   },
   home: {
     heroTitle: "Kepala lagi penuh?",
@@ -86,7 +92,6 @@ const id = {
     undo: "Urungkan",
     redo: "Ulangi",
     shortcuts: "Pintasan keyboard",
-    theme: "Ganti tema",
     addChild: "Tambah cabang",
     addSibling: "Tambah ide sejajar",
     childShort: "Cabang",
@@ -243,6 +248,12 @@ const en: Dict = {
       "Sararia Mind Map is a fast, keyboard-friendly mind map. Sort out what's on your mind, plan projects, and get ideas down without friction.",
     skip: "Skip to content",
   },
+  prefs: {
+    appearance: "Appearance",
+    light: "Light",
+    dark: "Dark",
+    system: "Automatic",
+  },
   home: {
     heroTitle: "Head too full?",
     heroLead: "Write things down one at a time. Bit by bit you'll see what matters and what can wait.",
@@ -312,7 +323,6 @@ const en: Dict = {
     undo: "Undo",
     redo: "Redo",
     shortcuts: "Keyboard shortcuts",
-    theme: "Switch theme",
     addChild: "Add branch",
     addSibling: "Add idea alongside",
     childShort: "Branch",
